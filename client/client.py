@@ -4,8 +4,6 @@ J-Quants APIクライアントモジュール
 このモジュールはJ-Quants APIを使用して株価データを取得するためのクライアントを提供します。
 """
 import jquantsapi
-from config.config import Config
-
 
 def create_client() -> jquantsapi.Client:
     """
@@ -14,5 +12,4 @@ def create_client() -> jquantsapi.Client:
     Returns:
         jquantsapi.Client: 設定済みのJ-Quants APIクライアント
     """
-    config = Config()
-    return jquantsapi.Client(mail_address=config.MY_EMAIL, password=config.JPX_PASSWORD)
+    return jquantsapi.Client()
