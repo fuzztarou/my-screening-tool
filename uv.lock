@@ -79,6 +79,7 @@ source = { editable = "." }
 dependencies = [
     { name = "jquants-api-client" },
     { name = "pandas" },
+    { name = "python-dateutil" },
     { name = "python-dotenv" },
 ]
 
@@ -86,6 +87,7 @@ dependencies = [
 requires-dist = [
     { name = "jquants-api-client", specifier = ">=1.8.0" },
     { name = "pandas", specifier = ">=2.3.0" },
+    { name = "python-dateutil", specifier = ">=2.8.0" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
 ]
 
