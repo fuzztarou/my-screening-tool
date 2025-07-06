@@ -1,176 +1,216 @@
+"""
+ファイルとディレクトリの管理ユーティリティ
+"""
+
 import datetime
-import os
-import subprocess
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
 
 import pandas as pd
-from PIL import Image
 
 
-def check_file_exists(file_path):
+# ========================================
+# CONSTANTS
+# ========================================
+@dataclass(frozen=True)
+class TimeConstants:
+    """時間関連の定数クラス"""
+
+    T_DELTA: datetime.timedelta = datetime.timedelta(hours=9)
+    JST: datetime.timezone = datetime.timezone(datetime.timedelta(hours=9), "JST")
+
+
+# ========================================
+# ENUM
+# ========================================
+class SubDirectory(Enum):
     """
-    指定したディレクトリに指定したファイル名のファイルが存在するかどうかを調べる関数
-
-    file_path: ファイルのパス
-    return: ファイルが存在する場合はTrue、そうでない場合はFalse
-    """
-
-    return os.path.exists(file_path)
-
-
-def prepare_date_dir(date):
-    """
-    今日の日付のディレクトリが無い場合は作成する関数
-    """
-    if date is None:
-        date = datetime.date.today()
-
-    file_dir = f"data/{date}"
-    generate_dir_if_not_exists(file_dir)
-    generate_dir_if_not_exists(f"{file_dir}/quotes")
-    generate_dir_if_not_exists(f"{file_dir}/images")
-    generate_dir_if_not_exists(f"{file_dir}/fins")
-
-
-def generate_dir_if_not_exists(path):
-    """
-    ディレクトリが存在しない場合はディレクトリを作成する関数
-
-    Args:
-        path: 作成するディレクトリのパス
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
-def generate_today_data_dir_if_not_exists(path):
-    """
-    ディレクトリが存在しない場合はディレクトリを作成する関数
-
-    Args:
-        path: 作成するディレクトリのパス
-    """
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
-def save_as_csv(df, directory, filename):
-    """
-    データフレームをCSVファイルとして保存する関数
-
-    Args:
-        df: 保存するデータフレーム
-        path: 保存するディレクトリのパス
-        suffix: ファイル名のサフィックス
-    """
-    # ファイル名を生成
-    filename = f"{filename}.csv"
-
-    # ファイルパスを生成
-    file_path = os.path.join(directory, filename)
-
-    # ファイルを保存
-    df.to_csv(file_path, index=False)
-
-
-def extract_columns(df: pd.DataFrame, columns: list):
-    """
-    必要なカラムのみを抽出する関数
-
-    Args:
-        df: データフレーム
-        columns: カラム名のリスト
-    Returns:
-        抽出したデータフレーム
-    """
-    try:
-        return df[columns]
-    except Exception as e:
-        print(f"failed to extract columns @extract_columns: {e}")
-        return None
-
-
-def filter_by_column_name_and_data(df: pd.DataFrame, column_name: str, data: any):
-    """
-    指定したカラムがdataに一致した行だけを取得する関数
-
-    Args:
-        df: データフレーム
-        column_name: カラム名
-        data: 指定したカラムのデータ
-    """
-    # 年度末のデータだけを取得
-    mask = df[column_name].astype(str).str.contains(data, na=False)
-
-    return df[mask]
-
-
-def extract_non_duplicated_values(df, column_name):
-    """
-    指定したカラムの重複を削除した値をリストで返す関数
-
-    Args:
-        df: データフレーム
-        column_name: カラム名
-    return: 重複を削除した値のリスト
-    """
-    return df[column_name].drop_duplicates().tolist()
-
-
-def images_to_pdf(image_dir_path: str, output_pdf_path: str):
-    """
-    指定したディレクトリ内の画像ファイルをPDFファイルに変換する関数
-
-    Args:
-        image_dir_path: 画像ファイルのディレクトリ
-        output_pdf_path: 出力するPDFファイルのパス
-    Retunrs:
-        None
+    サブディレクトリのENUM
+    QUOTES = "quotes"
+    IMAGES = "images"
+    FINS = "fins"
     """
 
-    # dir_path から画像ファイルのリストを取得
-    images = [
-        os.path.join(image_dir_path, f)
-        for f in os.listdir(image_dir_path)
-        if f.endswith((".png", ".jpg", ".jpeg"))
-    ]
-    # 画像ファイルをソート（必要に応じて）
-    images.sort()
-
-    # 画像ファイルのリストが空でない場合
-    if images:
-        # 最初の画像を開いて他の画像を追加する
-        with Image.open(images[0]) as img:
-            img_list = [Image.open(image).convert("RGB") for image in images[1:]]
-            img.save(
-                output_pdf_path,
-                "PDF",
-                resolution=100.0,
-                save_all=True,
-                append_images=img_list,
-            )
+    QUOTES = "quotes"
+    IMAGES = "images"
+    FINS = "fins"
 
 
-def convert_to_numeric(df, columns):
+class FileExtension(Enum):
+    """ファイル拡張子のENUM"""
+
+    CSV = ".csv"
+    JSON = ".json"
+    TXT = ".txt"
+    PDF = ".pdf"
+    PNG = ".png"
+    JPG = ".jpg"
+
+
+class DateFormat(Enum):
     """
-    データフレームの指定したカラムを数値に変換する関数
-    df: データフレーム
-    columns: 数値に変換するカラムのリスト
-    return: 数値に変換したデータフレーム
-    """
-    df[columns] = df[columns].apply(pd.to_numeric, errors="coerce")
-
-    return df
-
-
-def open_by_finder(path: str):
-    """
-    指定したパスをFinderで開く関数
-
-    Args:
-        path: パス
+    日付フォーマットのENUM
+    ISO = "%Y-%m-%d"  # 2025-06-26
+    COMPACT = "%Y%m%d"  # 20250626
+    SLASH = "%Y/%m/%d"  # 2025/06/26
+    JAPANESE = "%Y年%m月%d日"  # 2025年06月26日
     """
 
-    try:
-        subprocess.run(["open", path], check=True)
-    except Exception as e:
-        print(f"Failed to open {path}: {e}")
+    ISO = "%Y-%m-%d"  # 2025-06-26
+    COMPACT = "%Y%m%d"  # 20250626
+    SLASH = "%Y/%m/%d"  # 2025/06/26
+    JAPANESE = "%Y年%m月%d日"  # 2025年06月26日
+
+
+class BaseDirectory(Enum):
+    """
+    ベースディレクトリのENUM
+    DATA = "data"
+    OUTPUT = "output"
+    TEMP = "temp"
+    """
+
+    DATA = "data"
+    OUTPUT = "output"
+    TEMP = "temp"
+
+
+# ========================================
+# CLASS
+# ========================================
+class FileNameBuilder:
+    """日付を含むファイル名の生成クラス"""
+
+    def __init__(self, date_format: DateFormat = DateFormat.ISO):
+        self.date_format = date_format
+
+    def build_filename(
+        self, base_name: str, date: datetime.date, extension: FileExtension
+    ) -> str:
+        """日付を含むファイル名を生成"""
+        date_str = date.strftime(self.date_format.value)
+        return f"{base_name}_{date_str}{extension.value}"
+
+    def build_directory_name(self, date: datetime.date) -> str:
+        """日付ディレクトリ名を生成"""
+        return date.strftime(self.date_format.value)
+
+
+class DateBasedFileManager:
+    """日付ベースのディレクトリとファイル管理クラス"""
+
+    def __init__(
+        self,
+        base_dir: BaseDirectory = BaseDirectory.DATA,
+        date_format: DateFormat = DateFormat.ISO,
+    ):
+        self.base_dir = base_dir
+        self.filename_builder = FileNameBuilder(date_format)
+        self.current_date = datetime.datetime.now(TimeConstants.JST).date()
+
+    def set_date(self, date: datetime.date) -> None:
+        """作業対象の日付を設定"""
+        self.current_date = date
+
+    def get_date_string(self) -> str:
+        """設定された日付を文字列で取得"""
+        return self.filename_builder.build_directory_name(self.current_date)
+
+    def create_date_directory_structure(
+        self, date: datetime.date | None = None
+    ) -> Path:
+        """日付ベースのディレクトリ構造を作成
+
+        作成されるディレクトリ構造例:
+        data/2025-06-26/
+        ├── quotes/
+        ├── images/
+        └── fins/
+        """
+        target_date = date or self.current_date
+        date_dir = self.filename_builder.build_directory_name(target_date)
+
+        # メインディレクトリ作成
+        main_path = Path(self.base_dir.value) / date_dir
+        self._ensure_directory_exists(main_path)
+
+        # サブディレクトリ作成
+        for subdir in SubDirectory:
+            subdir_path = Path(main_path) / subdir.value
+            self._ensure_directory_exists(subdir_path)
+
+        return main_path
+
+    def create_file_with_date(
+        self,
+        base_filename: str,
+        content: str,
+        subdir: SubDirectory | None = None,
+        extension: FileExtension = FileExtension.CSV,
+        date: datetime.date | None = None,
+    ) -> Path:
+        """日付を含むファイル名でファイルを作成"""
+        target_date = date or self.current_date
+
+        filename = self.filename_builder.build_filename(
+            base_filename, target_date, extension
+        )
+        file_path = self.get_file_path(filename, subdir, target_date)
+
+        # ディレクトリが存在しない場合は作成
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # ファイル作成処理
+        self._write_file(file_path, content)
+        return file_path
+
+    def get_file_path(
+        self,
+        filename: str,
+        subdir: SubDirectory | None = None,
+        date: datetime.date | None = None,
+    ) -> Path:
+        """完全なファイルパスを生成"""
+        target_date = date or self.current_date
+        date_dir = self.filename_builder.build_directory_name(target_date)
+
+        base_path = Path(self.base_dir.value) / date_dir
+        if subdir:
+            return base_path / subdir.value / filename
+
+        return base_path / filename
+
+    def save_dataframe_with_date(
+        self,
+        df: pd.DataFrame,
+        base_filename: str,
+        subdir: SubDirectory | None = None,
+        date: datetime.date | None = None,
+    ) -> Path:
+        """データフレームを日付付きCSVファイルとして保存"""
+        target_date = date or self.current_date
+        filename = self.filename_builder.build_filename(
+            base_filename, target_date, FileExtension.CSV
+        )
+        file_path = self.get_file_path(filename, subdir, target_date)
+
+        # ディレクトリが存在しない場合は作成
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # CSVファイルとして保存
+        df.to_csv(file_path, index=False)
+        return file_path
+
+    def _ensure_directory_exists(self, path: Path | str) -> None:
+        """ディレクトリが存在しない場合は作成"""
+        # 文字列が渡された場合は Path オブジェクトに変換
+        path_obj = Path(path) if isinstance(path, str) else path
+
+        if not path_obj.exists():
+            path_obj.mkdir(parents=True, exist_ok=True)
+
+    def _write_file(self, file_path: Path, content: str) -> None:
+        """ファイルを書き込み"""
+        with Path.open(file_path, "w", encoding="utf-8") as f:
+            f.write(content)
