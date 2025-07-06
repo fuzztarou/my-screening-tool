@@ -11,3 +11,6 @@ wheels/
 
 # credential files
 .env
+
+# data output
+data/
