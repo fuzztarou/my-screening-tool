@@ -1,31 +1,42 @@
+"""
+アプリケーション設定モジュール
+"""
+
+import logging
 import os
-from typing import Optional
+
 from dotenv import load_dotenv
 
+# 環境変数を読み込み
 load_dotenv()
 
+
 class Config:
-    """Base configuration class"""
-    _instance = None
+    """アプリケーション設定クラス"""
 
-    MY_EMAIL: Optional[str] = None
-    JPX_PASSWORD: Optional[str] = None
+    def __init__(self) -> None:
+        # ログ設定
+        self.LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+        self.LOG_FORMAT: str = os.getenv("LOG_FORMAT", "%(levelname)s: %(message)s")
 
-    def __new__(cls):
-        # 既にインスタンスが存在する場合はそれを返す（早期リターン）
-        if cls._instance is not None:
-            return cls._instance
+    def set_config(self) -> None:
+        """アプリケーション設定を初期化"""
+        self.setup_logging()
 
-        # 新しいインスタンスを作成
-        cls._instance = super().__new__(cls)
+    def setup_logging(self) -> None:
+        """ログ設定を初期化"""
+        logging.basicConfig(
+            level=getattr(logging, self.LOG_LEVEL.upper()),
+            format=self.LOG_FORMAT,
+            handlers=[
+                logging.StreamHandler(),  # コンソール出力
+            ],
+        )
 
-        # 環境変数を読み込む
-        cls._instance.MY_EMAIL = os.getenv("MY_EMAIL")
-        if cls._instance.MY_EMAIL is None:
-            print("警告: MY_EMAIL 環境変数が設定されていません")
+        # ログ設定完了メッセージ
+        logger = logging.getLogger(__name__)
+        logger.info(f"ログ設定が完了しました (レベル: {self.LOG_LEVEL})")
 
-        cls._instance.JPX_PASSWORD = os.getenv("JPX_PASSWORD")
-        if cls._instance.JPX_PASSWORD is None:
-            print("警告: JPX_PASSWORD 環境変数が設定されていません")
 
-        return cls._instance
+# グローバル設定インスタンス
+config = Config()
