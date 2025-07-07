@@ -3,7 +3,9 @@ J-Quants APIクライアントモジュール
 
 このモジュールはJ-Quants APIを使用して株価データを取得するためのクライアントを提供します。
 """
+
 import jquantsapi
+
 
 def create_client() -> jquantsapi.Client:
     """
