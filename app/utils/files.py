@@ -62,12 +62,12 @@ class FileManager:
         """作業対象の日付を設定"""
         self.today = date
 
-    def _get_date_string(self, date: datetime.date | None = None) -> str:
+    def get_date_string(self, date: datetime.date | None = None) -> str:
         """日付を文字列で取得(ISO形式: 2025-10-06)"""
         target_date = date or self.today
         return target_date.strftime("%Y-%m-%d")
 
-    def _ensure_directory_exists(self, path: Path) -> None:
+    def ensure_directory_exists(self, path: Path) -> None:
         """ディレクトリが存在しない場合は作成"""
         if not path.exists():
             path.mkdir(parents=True, exist_ok=True)
@@ -88,10 +88,10 @@ class FileManager:
         Returns:
             Path: 保存されたファイルのパス
         """
-        date_str = self._get_date_string(date)
+        date_str = self.get_date_string(date)
         file_path = self.base_dir / "reports" / date_str / filename
 
-        self._ensure_directory_exists(file_path.parent)
+        self.ensure_directory_exists(file_path.parent)
 
         if isinstance(content, str):
             file_path.write_text(content, encoding="utf-8")
@@ -118,10 +118,10 @@ class FileManager:
         Returns:
             Path: 保存されたファイルのパス
         """
-        date_str = self._get_date_string(date)
+        date_str = self.get_date_string(date)
         file_path = self.base_dir / "temporary" / date_str / data_type.value / filename
 
-        self._ensure_directory_exists(file_path.parent)
+        self.ensure_directory_exists(file_path.parent)
         df.to_csv(file_path, index=False)
 
         return file_path
@@ -156,10 +156,10 @@ class FileManager:
     ) -> Path:
         """PNGファイルとして保存(拡張子自動付与)"""
         filename = f"{base_name}.png"
-        date_str = self._get_date_string(date)
+        date_str = self.get_date_string(date)
         file_path = self.base_dir / "temporary" / date_str / data_type.value / filename
 
-        self._ensure_directory_exists(file_path.parent)
+        self.ensure_directory_exists(file_path.parent)
         file_path.write_bytes(content)
 
         return file_path
