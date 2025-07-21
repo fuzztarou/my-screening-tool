@@ -3,23 +3,12 @@
 """
 
 import datetime
-import shutil
-from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
 import pandas as pd
 
-
-# ========================================
-# CONSTANTS
-# ========================================
-@dataclass(frozen=True)
-class TimeConstants:
-    """時間関連の定数クラス"""
-
-    T_DELTA: datetime.timedelta = datetime.timedelta(hours=9)
-    JST: datetime.timezone = datetime.timezone(datetime.timedelta(hours=9), "JST")
+from app.utils import dates
 
 
 # ========================================
@@ -56,7 +45,7 @@ class FileManager:
 
     def __init__(self, base_dir: str = "data"):
         self.base_dir = Path(base_dir)
-        self.today = datetime.datetime.now(TimeConstants.JST).date()
+        self.today = dates.get_current_jst_date()
 
     def set_date(self, date: datetime.date) -> None:
         """作業対象の日付を設定"""
@@ -65,7 +54,7 @@ class FileManager:
     def get_date_string(self, date: datetime.date | None = None) -> str:
         """日付を文字列で取得(ISO形式: 2025-10-06)"""
         target_date = date or self.today
-        return target_date.strftime("%Y-%m-%d")
+        return dates.format_date(target_date)
 
     def ensure_directory_exists(self, path: Path) -> None:
         """ディレクトリが存在しない場合は作成"""
