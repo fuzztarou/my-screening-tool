@@ -19,6 +19,9 @@ class Config:
         self.LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
         self.LOG_FORMAT: str = os.getenv("LOG_FORMAT", "%(levelname)s: %(message)s")
 
+        # 株価データ設定
+        self.DATA_YEARS_AGO: int = int(os.getenv("DATA_YEARS_AGO", "5"))
+
     def set_config(self) -> None:
         """アプリケーション設定を初期化"""
         self.setup_logging()
