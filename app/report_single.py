@@ -6,6 +6,7 @@ import logging
 
 from .client.jq import create_client
 from .services.fins import FinsDataHandler
+from .services.daily_quotes import DailyQuotesDataHandler
 
 logger = logging.getLogger(__name__)
 
@@ -22,16 +23,26 @@ def report_single_company() -> None:
     # FinsDataHandlerを初期化
     fins_handler = FinsDataHandler(client=client)
     logger.info("FinsDataHandlerを初期化しました。")
+    daily_quotes_handler = DailyQuotesDataHandler(client=client)
+    logger.info("DailyQuotesDataHandlerを初期化しました。")
 
     # ユーザーからコードの入力
     code = input("企業の証券コードを入力してください: ").strip()
 
-    # 会社データを取得
+    # 財務データを取得
     try:
         fins_handler.fetch_and_save_financial_data(stock_codes=[code])
         logger.info("証券コード %s の財務データを取得・保存しました。", code)
     except Exception as e:
         logger.exception("証券コード %s のデータ取得に失敗しました: %s", code, e)
+        return
+
+    # 株価データを取得
+    try:
+        daily_quotes_handler.fetch_and_save_daily_quotes(stock_codes=[code])
+        logger.info("証券コード %s の株価データを取得・保存しました。", code)
+    except Exception as e:
+        logger.exception("証券コード %s の株価データ取得に失敗しました: %s", code, e)
         return
 
 
