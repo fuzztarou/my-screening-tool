@@ -150,17 +150,13 @@ class IndicatorCalculator:
 
     def _set_asset_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """資産価値を計算"""
-        df["AssetValue"] = df["PBR"] * df["DiscountRate"]
+        df["AssetValue"] = df["BPS"] * df["DiscountRate"]
         return df
 
     def _set_business_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """事業価値を計算"""
-        latest_shares = df[LATEST_SHARES].iloc[-1]
         df["BusinessValue"] = (
-            (df["ForecastProfit"] / latest_shares)  # EPS
-            * df["ROA"]
-            * 150
-            * df["FinancialLeverageAdjustment"]
+            df["EPS"] * df["ROA"] * 150 * df["FinancialLeverageAdjustment"]
         )
         return df
 
