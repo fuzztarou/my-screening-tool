@@ -40,6 +40,8 @@ class IndicatorCalculator:
 
     def calculate_all_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
         """全ての指標を計算"""
+        df = self._set_EPS_value(df)
+        df = self._set_BPS_value(df)
         df = self._set_PER_value(df)
         df = self._set_PBR_value(df)
         df = self._set_ROE_value(df)
@@ -60,18 +62,24 @@ class IndicatorCalculator:
         df = self._set_theoretical_stock_price(df)
         return df
 
+    def _set_EPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
+        """EPS値を計算"""
+        df["EPS"] = df["ForecastProfit"] / df[LATEST_SHARES].iloc[-1]
+        return df
+
     def _set_PER_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PER値を計算"""
-        latest_shares = df[
-            LATEST_SHARES  # 期末発行済株式数
-        ].iloc[-1]
-        df["PER"] = df["AdjustmentClose"] / (df["ForecastProfit"] / latest_shares)
+        df["PER"] = df["AdjustmentClose"] / (df["EPS"])
+        return df
+
+    def _set_BPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
+        """BPS値を計算"""
+        df["BPS"] = df["Equity"] / df[LATEST_SHARES].iloc[-1]
         return df
 
     def _set_PBR_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PBR値を計算"""
-        latest_shares = df[LATEST_SHARES].iloc[-1]
-        df["PBR"] = df["AdjustmentClose"] / (df["Equity"] / latest_shares)
+        df["PBR"] = df["AdjustmentClose"] / (df["BPS"])
         return df
 
     def _set_ROE_value(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -324,8 +332,6 @@ def process_quotes(codes: list[str]) -> None:
     Args:
         codes: 銘柄コードのリスト
     """
-    import datetime
-
     analyzer = StockDataProcessor()
     # TODO: 日付の取得方法を設定から取得するように修正が必要
     date = datetime.date.today()
