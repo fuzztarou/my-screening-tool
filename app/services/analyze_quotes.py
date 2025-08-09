@@ -111,12 +111,12 @@ class IndicatorCalculator:
         return df
 
     def _set_financial_leverage_adjustment(self, df: pd.DataFrame) -> pd.DataFrame:
-        """財務レバレッジ調整を計算"""
-        df["TempValue"] = df["TotalAssets"] + 0.33
+        """自己資本比率を基に財務レバレッジ調整を計算"""
+        df["TempValue"] = df["EquityToAssetRatio"] + 0.33
 
         conditions = [
-            df["TempValue"] < 0.66,
-            df["TempValue"] > 1.00,
+            df["TempValue"] <= 0.66,
+            df["TempValue"] >= 1.00,
         ]
         choices = [0.66, 1.00]
 
