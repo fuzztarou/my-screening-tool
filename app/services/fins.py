@@ -13,6 +13,7 @@ import jquantsapi
 import pandas as pd
 
 from app.client.jq import create_client
+from app.services.listed_info import ListedInfoHandler
 from app.utils.files import DataType, FileManager
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,15 @@ class FinsDataHandler:
                     code,
                 )
 
+        # 統合ファイルを作成
+        self._create_consolidated_file(stock_codes)
+
+        # 上場企業情報ファイルを作成
+        listed_info_handler = ListedInfoHandler(
+            client=self.client, file_manager=self.file_manager
+        )
+        listed_info_handler.create_listed_info_file()
+
         # 最終結果をログで出力
         logger.info("既存CSV: %d個, 新規CSV: %d個", existing_count, new_count)
 
@@ -91,3 +101,45 @@ class FinsDataHandler:
             df=df, stock_code=stock_code, data_type=DataType.FINS
         )
         return Path(result)
+
+    def _create_consolidated_file(self, stock_codes: list[str]) -> None:
+        """個別の財務ファイルを統合してfins_org.csvを作成"""
+        try:
+            date_str = self.file_manager.get_date_string()
+            fins_dir = (
+                self.file_manager.base_dir
+                / "temporary"
+                / date_str
+                / DataType.FINS.value
+            )
+
+            # 統合用のDataFrameリスト
+            consolidated_dfs = []
+
+            # 各証券コードのファイルを読み込み
+            for code in stock_codes:
+                csv_path = fins_dir / f"{code}_fins.csv"
+                if csv_path.exists():
+                    try:
+                        df = pd.read_csv(
+                            csv_path, dtype={2: str}
+                        )  # LocalCodeを文字列として読み込み
+                        consolidated_dfs.append(df)
+                        logger.debug("統合ファイルに追加: %s", csv_path)
+                    except Exception as e:
+                        logger.warning("ファイル読み込みエラー %s: %s", csv_path, e)
+
+            # 統合ファイルを作成
+            if consolidated_dfs:
+                consolidated_df = pd.concat(consolidated_dfs, ignore_index=True)
+
+                # 統合ファイルを保存
+                consolidated_path = fins_dir / "fins_org.csv"
+                consolidated_df.to_csv(consolidated_path, index=False)
+                logger.info("統合ファイルを作成しました: %s", consolidated_path)
+                logger.info("統合データ件数: %d件", len(consolidated_df))
+            else:
+                logger.warning("統合対象のファイルが見つかりませんでした")
+
+        except Exception as e:
+            logger.exception("統合ファイル作成中にエラーが発生しました: %s", e)
