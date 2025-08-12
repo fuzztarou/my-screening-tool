@@ -229,13 +229,7 @@ class StockDataProcessor:
         date_str = self.file_manager.get_date_string(date)
 
         # 財務情報を読み込み
-        fins_path = (
-            self.file_manager.base_dir
-            / "temporary"
-            / date_str
-            / "fins"
-            / "fins_org.csv"
-        )
+        fins_path = self.file_manager.base_dir / "temporary" / date_str / "fins_org.csv"
         self.df_fins = pd.read_csv(fins_path, dtype={2: str})
 
         # 銘柄辞書を作成
@@ -290,7 +284,7 @@ class StockDataProcessor:
             self.file_manager.base_dir
             / "temporary"
             / date_str
-            / "quotes"
+            / code
             / f"{code}_quotes.csv"
         )
         df_quotes = pd.read_csv(quotes_path)

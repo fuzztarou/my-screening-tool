@@ -85,7 +85,7 @@ class FinsDataHandler:
             self.file_manager.base_dir
             / "temporary"
             / date_str
-            / DataType.FINS.value
+            / stock_code
             / f"{stock_code}_fins.csv"
         )
         return bool(csv_path.exists())
@@ -97,28 +97,27 @@ class FinsDataHandler:
 
     def _save_to_csv(self, df: pd.DataFrame, stock_code: str) -> Path:
         """DataFrameをCSVファイルとして保存"""
-        result = self.file_manager.save_by_stock_code(
-            df=df, stock_code=stock_code, data_type=DataType.FINS
-        )
-        return Path(result)
+        date_str = self.file_manager.get_date_string()
+        code_dir = self.file_manager.base_dir / "temporary" / date_str / stock_code
+        self.file_manager.ensure_directory_exists(code_dir)
+
+        file_path = code_dir / f"{stock_code}_fins.csv"
+        df.to_csv(file_path, index=False)
+        logger.info("財務データを保存しました: %s", file_path)
+        return file_path
 
     def _create_consolidated_file(self, stock_codes: list[str]) -> None:
         """個別の財務ファイルを統合してfins_org.csvを作成"""
         try:
             date_str = self.file_manager.get_date_string()
-            fins_dir = (
-                self.file_manager.base_dir
-                / "temporary"
-                / date_str
-                / DataType.FINS.value
-            )
+            base_dir = self.file_manager.base_dir / "temporary" / date_str
 
             # 統合用のDataFrameリスト
             consolidated_dfs = []
 
-            # 各証券コードのファイルを読み込み
+            # 各証券コードのファイルを読み込み（新しいディレクトリ構造）
             for code in stock_codes:
-                csv_path = fins_dir / f"{code}_fins.csv"
+                csv_path = base_dir / code / f"{code}_fins.csv"
                 if csv_path.exists():
                     try:
                         df = pd.read_csv(
@@ -133,8 +132,8 @@ class FinsDataHandler:
             if consolidated_dfs:
                 consolidated_df = pd.concat(consolidated_dfs, ignore_index=True)
 
-                # 統合ファイルを保存
-                consolidated_path = fins_dir / "fins_org.csv"
+                # 統合ファイルを保存（ルートディレクトリに）
+                consolidated_path = base_dir / "fins_org.csv"
                 consolidated_df.to_csv(consolidated_path, index=False)
                 logger.info("統合ファイルを作成しました: %s", consolidated_path)
                 logger.info("統合データ件数: %d件", len(consolidated_df))

@@ -85,7 +85,10 @@ class ChartService:
 
         # 保存
         file_path = self._save_chart(
-            fig, f"{stock_metrics.code}_price", stock_metrics.analysis_date
+            fig,
+            f"{stock_metrics.code}_price",
+            stock_metrics.analysis_date,
+            stock_metrics.code,
         )
         plt.close(fig)
         return file_path
@@ -119,7 +122,10 @@ class ChartService:
 
         # 保存
         file_path = self._save_chart(
-            fig, f"{stock_metrics.code}_indicators", stock_metrics.analysis_date
+            fig,
+            f"{stock_metrics.code}_indicators",
+            stock_metrics.analysis_date,
+            stock_metrics.code,
         )
         plt.close(fig)
         return file_path
@@ -158,7 +164,10 @@ class ChartService:
 
         # 保存
         file_path = self._save_chart(
-            fig, f"{stock_metrics.code}_volume", stock_metrics.analysis_date
+            fig,
+            f"{stock_metrics.code}_volume",
+            stock_metrics.analysis_date,
+            stock_metrics.code,
         )
         plt.close(fig)
         return file_path
@@ -184,10 +193,12 @@ class ChartService:
 
         # 保存設定
         date_str = self.file_manager.get_date_string(stock_metrics.analysis_date)
-        images_dir = self.file_manager.base_dir / "output" / date_str / "images"
-        self.file_manager.ensure_directory_exists(images_dir)
+        code_dir = (
+            self.file_manager.base_dir / "temporary" / date_str / stock_metrics.code
+        )
+        self.file_manager.ensure_directory_exists(code_dir)
 
-        file_path = images_dir / f"{stock_metrics.code}_candlestick.png"
+        file_path = code_dir / f"{stock_metrics.code}_candlestick.png"
         save_settings = {"fname": str(file_path), "dpi": 100, "pad_inches": 0.25}
 
         # ローソクチャートを作成
@@ -249,18 +260,23 @@ class ChartService:
 
         # 保存
         file_path = self._save_chart(
-            fig, f"{stock_metrics.code}_stock_price", stock_metrics.analysis_date
+            fig,
+            f"{stock_metrics.code}_stock_price",
+            stock_metrics.analysis_date,
+            stock_metrics.code,
         )
         plt.close(fig)
         return file_path
 
-    def _save_chart(self, fig: plt.Figure, filename: str, date: datetime.date) -> Path:
+    def _save_chart(
+        self, fig: plt.Figure, filename: str, date: datetime.date, code: str
+    ) -> Path:
         """チャートを保存"""
         date_str = self.file_manager.get_date_string(date)
-        images_dir = self.file_manager.base_dir / "output" / date_str / "images"
-        self.file_manager.ensure_directory_exists(images_dir)
+        code_dir = self.file_manager.base_dir / "temporary" / date_str / code
+        self.file_manager.ensure_directory_exists(code_dir)
 
-        file_path = images_dir / f"{filename}.png"
+        file_path = code_dir / f"{filename}.png"
         fig.savefig(file_path, dpi=100, bbox_inches="tight")
         logger.info("チャートを保存しました: %s", file_path)
         return file_path

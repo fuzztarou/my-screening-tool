@@ -87,7 +87,7 @@ class DailyQuotesDataHandler:
             self.file_manager.base_dir
             / "temporary"
             / date_str
-            / DataType.QUOTES.value
+            / stock_code
             / f"{stock_code}_quotes.csv"
         )
         return bool(csv_path.exists())
@@ -101,7 +101,11 @@ class DailyQuotesDataHandler:
 
     def _save_to_csv(self, df: pd.DataFrame, stock_code: str) -> Path:
         """DataFrameをCSVファイルとして保存"""
-        result = self.file_manager.save_by_stock_code(
-            df=df, stock_code=stock_code, data_type=DataType.QUOTES
-        )
-        return Path(result)
+        date_str = self.file_manager.get_date_string()
+        code_dir = self.file_manager.base_dir / "temporary" / date_str / stock_code
+        self.file_manager.ensure_directory_exists(code_dir)
+
+        file_path = code_dir / f"{stock_code}_quotes.csv"
+        df.to_csv(file_path, index=False)
+        logger.info("株価データを保存しました: %s", file_path)
+        return file_path
