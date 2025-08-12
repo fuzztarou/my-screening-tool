@@ -198,7 +198,9 @@ class ChartService:
         )
         self.file_manager.ensure_directory_exists(code_dir)
 
-        file_path = code_dir / f"{stock_metrics.code}_candlestick.png"
+        # 日付を YYMMDD 形式で取得
+        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
+        file_path = code_dir / f"{stock_metrics.code}_{date_short}_candlestick.png"
         save_settings = {"fname": str(file_path), "dpi": 100, "pad_inches": 0.25}
 
         # ローソクチャートを作成
@@ -276,7 +278,9 @@ class ChartService:
         code_dir = self.file_manager.base_dir / "temporary" / date_str / code
         self.file_manager.ensure_directory_exists(code_dir)
 
-        file_path = code_dir / f"{filename}.png"
+        # 日付を YYMMDD 形式で取得
+        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
+        file_path = code_dir / f"{code}_{date_short}_{filename.split('_', 1)[1]}.png"
         fig.savefig(file_path, dpi=100, bbox_inches="tight")
         logger.info("チャートを保存しました: %s", file_path)
         return file_path

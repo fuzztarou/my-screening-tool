@@ -81,12 +81,14 @@ class FinsDataHandler:
     def _csv_exists(self, stock_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
         date_str = self.file_manager.get_date_string()
+        # 日付を YYMMDD 形式で取得
+        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
         csv_path = (
             self.file_manager.base_dir
             / "temporary"
             / date_str
             / stock_code
-            / f"{stock_code}_fins.csv"
+            / f"{stock_code}_{date_short}_fins.csv"
         )
         return bool(csv_path.exists())
 
@@ -101,7 +103,9 @@ class FinsDataHandler:
         code_dir = self.file_manager.base_dir / "temporary" / date_str / stock_code
         self.file_manager.ensure_directory_exists(code_dir)
 
-        file_path = code_dir / f"{stock_code}_fins.csv"
+        # 日付を YYMMDD 形式で取得
+        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
+        file_path = code_dir / f"{stock_code}_{date_short}_fins.csv"
         df.to_csv(file_path, index=False)
         logger.info("財務データを保存しました: %s", file_path)
         return file_path
@@ -116,8 +120,9 @@ class FinsDataHandler:
             consolidated_dfs = []
 
             # 各証券コードのファイルを読み込み（新しいディレクトリ構造）
+            date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
             for code in stock_codes:
-                csv_path = base_dir / code / f"{code}_fins.csv"
+                csv_path = base_dir / code / f"{code}_{date_short}_fins.csv"
                 if csv_path.exists():
                     try:
                         df = pd.read_csv(
