@@ -10,6 +10,8 @@ dependencies = [
     "pillow>=11.2.1",
     "python-dateutil>=2.8.0",
     "python-dotenv>=1.0.0",
+    "matplotlib>=3.7.0",
+    "mplfinance>=0.12.0",
 ]
 
 [project.scripts]
@@ -34,7 +36,10 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
-ignore = ["COM812", "ISC001"]
+ignore = ["COM812", "ISC001", "N802", "PD901", "RT504"]
+
+[tool.pylint]
+disable = ["invalid-name"]
 
 [tool.ruff.format]
 quote-style = "double"
