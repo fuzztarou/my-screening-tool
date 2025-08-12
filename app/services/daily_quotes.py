@@ -6,7 +6,6 @@
 """
 
 import logging
-from operator import ge
 from pathlib import Path
 
 import jquantsapi
@@ -14,10 +13,49 @@ import pandas as pd
 
 from app.client.jq import create_client
 from app.utils import dates
-from app.utils.files import DataType, FileManager
+from app.utils.files import FileManager
 from config.config import config
 
 logger = logging.getLogger(__name__)
+
+# 株価データの数値変換用
+# https://jpx.gitbook.io/j-quants-ja/api-reference/daily_quotes
+QUOTES_COLUMNS_TO_NUMERIC = [
+    "Open",
+    "High",
+    "Low",
+    "Close",
+    "Volume",
+    "TurnoverValue",
+    "AdjustmentFactor",
+    "AdjustmentOpen",
+    "AdjustmentHigh",
+    "AdjustmentLow",
+    "AdjustmentClose",
+    "AdjustmentVolume",
+    "MorningOpen",
+    "MorningHigh",
+    "MorningLow",
+    "MorningClose",
+    "MorningVolume",
+    "MorningTurnoverValue",
+    "MorningAdjustmentOpen",
+    "MorningAdjustmentHigh",
+    "MorningAdjustmentLow",
+    "MorningAdjustmentClose",
+    "MorningAdjustmentVolume",
+    "AfternoonOpen",
+    "AfternoonHigh",
+    "AfternoonLow",
+    "AfternoonClose",
+    "AfternoonVolume",
+    "AfternoonTurnoverValue",
+    "AfternoonAdjustmentOpen",
+    "AfternoonAdjustmentHigh",
+    "AfternoonAdjustmentLow",
+    "AfternoonAdjustmentClose",
+    "AfternoonAdjustmentVolume",
+]
 
 
 class DailyQuotesDataHandler:
