@@ -207,8 +207,11 @@ class StockDataProcessor:
             try:
                 logger.info("分析中: %s (%s/%s)", code, i, len(codes))
 
+                # 株価データ読み込み
+                df_quotes = self._load_stock_quotes(code)
+
                 # データマージ
-                df_merged = self._merge_fins_and_stock(code)
+                df_merged = self._merge_fins_and_stock(code, df_quotes)
 
                 # 指標計算
                 df_calculated = self.calculator.calculate_all_indicators(df_merged)
@@ -254,14 +257,9 @@ class StockDataProcessor:
         # 銘柄辞書を作成
         self.code_name_dict = self._make_code_company_name_dict(date)
 
-    def _merge_fins_and_stock(self, code: str) -> pd.DataFrame:
-        """株価情報と財務情報を結合"""
-        # Noneチェック
-        assert self.df_fins is not None, "財務データが読み込まれていません"
+    def _load_stock_quotes(self, code: str) -> pd.DataFrame:
+        """株価データを読み込み"""
         assert self.target_date is not None, "分析日が設定されていません"
-
-        # codeの財務情報だけを抽出
-        df_fins_extracted = self.df_fins[self.df_fins["LocalCode"] == code]
 
         # 株価情報を読み込み
         date_str = self.file_manager.get_date_string(self.target_date)
@@ -275,6 +273,15 @@ class StockDataProcessor:
             / f"{code}_{date_short}_quotes.csv"
         )
         df_quotes = pd.read_csv(quotes_path)
+        return df_quotes
+
+    def _merge_fins_and_stock(self, code: str, df_quotes: pd.DataFrame) -> pd.DataFrame:
+        """財務データと株価データをマージ"""
+        # Noneチェック
+        assert self.df_fins is not None, "財務データが読み込まれていません"
+
+        # codeの財務情報だけを抽出
+        df_fins_extracted = self.df_fins[self.df_fins["LocalCode"] == code]
 
         # 財務情報と株価情報を結合
         df_merged = pd.merge(
