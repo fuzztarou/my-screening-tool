@@ -39,7 +39,7 @@ select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "FBT", "B", "
 ignore = ["COM812", "ISC001", "N802", "PD901", "RT504"]
 
 [tool.pylint]
-disable = ["invalid-name"]
+disable = ["invalid-name", "broad-exception-caught"]
 
 [tool.ruff.format]
 quote-style = "double"
