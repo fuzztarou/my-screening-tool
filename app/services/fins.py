@@ -95,7 +95,19 @@ class FinsDataHandler:
     def _fetch_financial_data(self, stock_code: str) -> pd.DataFrame:
         """APIから財務データを取得"""
         df = self.client.get_fins_statements(code=stock_code, date_yyyymmdd="")
-        return pd.DataFrame(df)
+
+        # 日付でソート（重要！）
+        df = df.sort_values("DisclosedDate").reset_index(drop=True)
+
+        # 空文字列をNaNに変換
+        df = df.replace("", pd.NA)
+
+        # 欠損値の処理
+        # 日付が古いものがあればそれで埋める なければ日付が新しいもので埋める
+        df.ffill(inplace=True)
+        df.bfill(inplace=True)
+
+        return df
 
     def _save_to_csv(self, df: pd.DataFrame, stock_code: str) -> Path:
         """DataFrameをCSVファイルとして保存"""
