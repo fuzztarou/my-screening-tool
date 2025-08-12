@@ -15,6 +15,8 @@ import pandas as pd
 
 from app.utils.files import FileManager
 
+from app.services.fins import FINS_COLUMNS_TO_NUMERIC
+
 logger = logging.getLogger(__name__)
 
 # 長すぎるカラム名
@@ -40,11 +42,10 @@ class IndicatorCalculator:
 
     def calculate_all_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
         """全ての指標を計算"""
-        df = self._set_EPS_value(df)
-        df = self._set_BPS_value(df)
         df = self._set_PER_value(df)
         df = self._set_PBR_value(df)
         df = self._set_ROE_value(df)
+        df = self._set_ROA_value(df)
         df = self._set_market_cap(df)
         df = self._set_smoothed_volume(df)
         df = self._set_200days_moving_average(df)
@@ -53,7 +54,6 @@ class IndicatorCalculator:
     def calculate_theoretical_price(self, df: pd.DataFrame) -> pd.DataFrame:
         """理論株価を計算"""
         df = self._set_discount_rate(df)
-        df = self._set_ROA(df)
         df = self._limit_ROA_value(df)
         df = self._set_risk_assessment_rate(df)
         df = self._set_financial_leverage_adjustment(df)
@@ -62,24 +62,14 @@ class IndicatorCalculator:
         df = self._set_theoretical_stock_price(df)
         return df
 
-    def _set_EPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
-        """EPS値を計算"""
-        df["EPS"] = df["ForecastProfit"] / df[LATEST_SHARES].iloc[-1]
-        return df
-
     def _set_PER_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PER値を計算"""
-        df["PER"] = df["AdjustmentClose"] / (df["EPS"])
-        return df
-
-    def _set_BPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
-        """BPS値を計算"""
-        df["BPS"] = df["Equity"] / df[LATEST_SHARES].iloc[-1]
+        df["PER"] = df["AdjustmentClose"] / (df["EarningsPerShare"])
         return df
 
     def _set_PBR_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PBR値を計算"""
-        df["PBR"] = df["AdjustmentClose"] / (df["BPS"])
+        df["PBR"] = df["AdjustmentClose"] / (df["BookValuePerShare"])
         return df
 
     def _set_ROE_value(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -87,14 +77,14 @@ class IndicatorCalculator:
         df["ROE"] = df["ForecastProfit"] / df["Equity"]
         return df
 
+    def _set_ROA_value(self, df: pd.DataFrame) -> pd.DataFrame:
+        """ROAを計算(割っただけの値)"""
+        df["ROA"] = df["ForecastProfit"] / df["TotalAssets"]
+        return df
+
     def _set_market_cap(self, df: pd.DataFrame) -> pd.DataFrame:
         """時価総額を計算"""
         df["MarketCap"] = df["AdjustmentClose"] * df["AverageNumberOfShares"]
-        return df
-
-    def _set_ROA(self, df: pd.DataFrame) -> pd.DataFrame:
-        """ROAを計算(割っただけの値)"""
-        df["ROA"] = df["ForecastProfit"] / df["TotalAssets"]
         return df
 
     def _limit_ROA_value(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -209,7 +199,7 @@ class StockDataProcessor:
         """
         logger.info("=== Analyze quotes ===")
 
-        # 基本データを読み込み
+        # 財務データを読み込み
         self.load_fins_data(date)
 
         results = []
@@ -231,6 +221,11 @@ class StockDataProcessor:
         # 財務情報を読み込み
         fins_path = self.file_manager.base_dir / "temporary" / date_str / "fins_org.csv"
         self.df_fins = pd.read_csv(fins_path, dtype={2: str})
+
+        # 数値カラムを数値型に変換
+        self.df_fins[FINS_COLUMNS_TO_NUMERIC] = self.df_fins[
+            FINS_COLUMNS_TO_NUMERIC
+        ].apply(pd.to_numeric, errors="coerce")
 
         # 銘柄辞書を作成
         self.code_name_dict = self._make_code_company_name_dict(date)
@@ -301,7 +296,7 @@ class StockDataProcessor:
         )
 
         # 欠損値を補完
-        df_merged = df_merged.ffill()
+        df_merged.ffill(inplace=True)
 
         return df_merged
 
