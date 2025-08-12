@@ -206,8 +206,32 @@ class StockDataProcessor:
         for i, code in enumerate(codes, start=1):
             try:
                 logger.info("分析中: %s (%s/%s)", code, i, len(codes))
-                result = self.process_stock(code)
-                results.append(result)
+
+                # データマージ
+                df_merged = self._merge_fins_and_stock(code)
+
+                # 指標計算
+                df_calculated = self.calculator.calculate_all_indicators(df_merged)
+
+                # 理論株価計算
+                df_result = self.calculator.calculate_theoretical_price(df_calculated)
+
+                # 結果構築
+                company_name = self.code_name_dict.get(code, code)
+                assert self.target_date is not None, "分析日が設定されていません"
+                stock_metrics = StockMetrics(
+                    code=code,
+                    company_name=company_name,
+                    df_merged=df_merged,
+                    df_calculated=df_calculated,
+                    df_result=df_result,
+                    analysis_date=self.target_date,
+                )
+
+                # キャッシュと結果追加
+                self.analysis_cache[code] = stock_metrics
+                results.append(stock_metrics)
+
             except Exception as e:
                 logger.exception("銘柄 %s の分析に失敗: %s", code, e)
 
@@ -229,40 +253,6 @@ class StockDataProcessor:
 
         # 銘柄辞書を作成
         self.code_name_dict = self._make_code_company_name_dict(date)
-
-    def process_stock(self, code: str) -> StockMetrics:
-        """
-        単一銘柄の分析
-
-        Args:
-            code: 銘柄コード
-
-        Returns:
-            分析結果データ
-        """
-        # データマージ
-        df_merged = self._merge_fins_and_stock(code)
-
-        # 指標計算
-        df_calculated = self.calculator.calculate_all_indicators(df_merged)
-
-        # 理論株価計算
-        df_result = self.calculator.calculate_theoretical_price(df_calculated)
-
-        # 結果をキャッシュ
-        company_name = self.code_name_dict.get(code, code)
-        assert self.target_date is not None, "分析日が設定されていません"
-        stock_metrics = StockMetrics(
-            code=code,
-            company_name=company_name,
-            df_merged=df_merged,
-            df_calculated=df_calculated,
-            df_result=df_result,
-            analysis_date=self.target_date,  # type: ignore
-        )
-
-        self.analysis_cache[code] = stock_metrics
-        return stock_metrics
 
     def _merge_fins_and_stock(self, code: str) -> pd.DataFrame:
         """株価情報と財務情報を結合"""
