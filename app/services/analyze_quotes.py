@@ -291,7 +291,7 @@ class StockDataProcessor:
             / "temporary"
             / date_str
             / "quotes"
-            / f"{code}.csv"
+            / f"{code}_quotes.csv"
         )
         df_quotes = pd.read_csv(quotes_path)
 
