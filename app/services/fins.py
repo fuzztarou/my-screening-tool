@@ -18,6 +18,58 @@ from app.utils.files import DataType, FileManager
 
 logger = logging.getLogger(__name__)
 
+# 財務データのフィルタリング用
+FINS_COLUMNS_TO_EXTRACT = [
+    "DisclosedDate",
+    "LocalCode",
+    "TypeOfDocument",
+    "NetSales",
+    "OperatingProfit",
+    "OrdinaryProfit",
+    "Profit",
+    "EarningsPerShare",
+    "ForecastNetSales",
+    "ForecastOperatingProfit",
+    "ForecastOrdinaryProfit",
+    "ForecastProfit",
+    "ForecastEarningsPerShare",
+    "NextYearForecastNetSales",
+    "NextYearForecastOperatingProfit",
+    "NextYearForecastOrdinaryProfit",
+    "NextYearForecastProfit",
+    "NextYearForecastEarningsPerShare",
+    "TotalAssets",
+    "Equity",
+    "EquityToAssetRatio",
+    "BookValuePerShare",
+    "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock",
+    "AverageNumberOfShares",
+]
+
+FINS_COLUMNS_TO_NUMERIC = [
+    "NetSales",
+    "OperatingProfit",
+    "OrdinaryProfit",
+    "Profit",
+    "EarningsPerShare",
+    "ForecastNetSales",
+    "ForecastOperatingProfit",
+    "ForecastOrdinaryProfit",
+    "ForecastProfit",
+    "ForecastEarningsPerShare",
+    "NextYearForecastNetSales",
+    "NextYearForecastOperatingProfit",
+    "NextYearForecastOrdinaryProfit",
+    "NextYearForecastProfit",
+    "NextYearForecastEarningsPerShare",
+    "TotalAssets",
+    "Equity",
+    "EquityToAssetRatio",
+    "BookValuePerShare",
+    "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock",  # 発行済株式数
+    "AverageNumberOfShares",
+]
+
 
 class FinsDataHandler:
     """財務データ取得・保存・分析ハンドラークラス"""
@@ -98,6 +150,9 @@ class FinsDataHandler:
 
         # 日付でソート（重要！）
         df = df.sort_values("DisclosedDate").reset_index(drop=True)
+
+        # 必要なカラムのみ抽出
+        df = df[FINS_COLUMNS_TO_EXTRACT]
 
         # 空文字列をNaNに変換
         df = df.replace("", pd.NA)
