@@ -31,18 +31,24 @@ class ChartService:
         """matplotlibの設定"""
         plt.rcParams["font.family"] = "sans-serif"
         plt.rcParams["font.sans-serif"] = [
-            "Hiragino Maru Gothic Pro",
+            "Hiragino Sans",
             "Yu Gothic",
-            "Meirio",
-            "Takao",
-            "IPAexGothic",
-            "IPAPGothic",
-            "VL PGothic",
             "Noto Sans CJK JP",
+            "Meirio",
+            "DejaVu Sans",
         ]
+        # フォント警告を抑制
+        import warnings
+
+        warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
+        warnings.filterwarnings("ignore", category=UserWarning, module="mplfinance")
 
     def _setup_x_axis(
-        self, ax, minticks: int = 3, maxticks: int = 8, fontsize: Optional[int] = None
+        self,
+        ax: mpl.axes.Axes,
+        minticks: int = 3,
+        maxticks: int = 8,
+        fontsize: Optional[int] = None,
     ) -> None:
         """X軸の共通設定を適用"""
         ax.xaxis.set_major_locator(
@@ -54,7 +60,7 @@ class ChartService:
     def create_price_chart(self, stock_metrics: StockMetrics) -> Path:
         """株価チャートを作成（株価・理論株価・移動平均）"""
         df = stock_metrics.df_result.copy()
-        title = f"{stock_metrics.code} {stock_metrics.company_name} - 株価チャート"
+        title = f"{stock_metrics.code} {stock_metrics.company_name} - Stock Price Chart"
 
         # 日付データの型を確認し、必要に応じて変換
         if not pd.api.types.is_datetime64_any_dtype(df["Date"]):
@@ -64,21 +70,24 @@ class ChartService:
         fig.suptitle(title)
 
         # 株価、理論株価、理論株価上限、移動平均をプロット
-        ax.plot(df["Date"], df["AdjustmentClose"], label="株価", linewidth=2)
+        ax.plot(df["Date"], df["AdjustmentClose"], label="Stock Price", linewidth=2)
         ax.plot(
-            df["Date"], df["TheoreticalStockPrice"], label="理論株価", linestyle="--"
+            df["Date"],
+            df["TheoreticalStockPrice"],
+            label="Theoretical Price",
+            linestyle="--",
         )
         ax.plot(
             df["Date"],
             df["TheoreticalStockPriceUpperLimit"],
-            label="理論株価上限",
+            label="Theoretical Price Upper",
             linestyle=":",
         )
-        ax.plot(df["Date"], df["SMA_200"], label="200日移動平均", alpha=0.7)
+        ax.plot(df["Date"], df["SMA_200"], label="200-day MA", alpha=0.7)
 
         ax.legend(loc="upper left")
         ax.grid(True, alpha=0.3)
-        ax.set_ylabel("価格 (円)")
+        ax.set_ylabel("Price (JPY)")
 
         # X軸のフォーマット
         self._setup_x_axis(ax)
@@ -96,7 +105,9 @@ class ChartService:
     def create_indicators_chart(self, stock_metrics: StockMetrics) -> Path:
         """指標チャートを作成（PER・PBR・ROE）"""
         df = stock_metrics.df_result.copy()
-        title = f"{stock_metrics.code} {stock_metrics.company_name} - 指標チャート"
+        title = (
+            f"{stock_metrics.code} {stock_metrics.company_name} - Financial Indicators"
+        )
 
         # 日付データの型を確認し、必要に応じて変換
         if not pd.api.types.is_datetime64_any_dtype(df["Date"]):
@@ -113,7 +124,7 @@ class ChartService:
 
         ax.legend(loc="upper left")
         ax.grid(True, alpha=0.3)
-        ax.set_ylabel("倍率")
+        ax.set_ylabel("Ratio")
 
         # X軸のフォーマット
         self._setup_x_axis(ax, minticks=2, maxticks=5)
@@ -133,7 +144,7 @@ class ChartService:
     def create_volume_chart(self, stock_metrics: StockMetrics) -> Path:
         """出来高チャートを作成"""
         df = stock_metrics.df_result.copy()
-        title = f"{stock_metrics.code} {stock_metrics.company_name} - 出来高チャート"
+        title = f"{stock_metrics.code} {stock_metrics.company_name} - Volume Chart"
 
         # 日付データの型を確認し、必要に応じて変換
         if not pd.api.types.is_datetime64_any_dtype(df["Date"]):
@@ -146,18 +157,18 @@ class ChartService:
         volume_10k = df["Volume"] / 10000
         smoothed_volume_10k = df["Smoothed_volume"] / 10000
 
-        ax.bar(df["Date"], volume_10k, alpha=0.6, label="出来高", width=1)
+        ax.bar(df["Date"], volume_10k, alpha=0.6, label="Volume", width=1)
         ax.plot(
             df["Date"],
             smoothed_volume_10k,
-            label="出来高移動平均",
+            label="Volume MA",
             color="red",
             linewidth=2,
         )
 
         ax.legend(loc="upper left")
         ax.grid(True, alpha=0.3)
-        ax.set_ylabel("出来高 (万株)")
+        ax.set_ylabel("Volume (10K shares)")
 
         # X軸のフォーマット
         self._setup_x_axis(ax)
@@ -210,7 +221,7 @@ class ChartService:
             volume=True,
             mav=(5, 25),
             style="charles",
-            title=f"{stock_metrics.code} {stock_metrics.company_name} - ローソクチャート ({days}日)",
+            title=f"{stock_metrics.code} {stock_metrics.company_name} - Candlestick Chart ({days} days)",
             savefig=save_settings,
         )
 
@@ -219,7 +230,7 @@ class ChartService:
     def create_stock_price_chart(self, stock_metrics: StockMetrics) -> Path:
         """株価総合チャートを作成（株価関連データのみ）"""
         df = stock_metrics.df_result.copy()
-        title = f"{stock_metrics.code} {stock_metrics.company_name} - 株価総合チャート"
+        title = f"{stock_metrics.code} {stock_metrics.company_name} - Comprehensive Stock Chart"
 
         # 日付データの型を確認し、必要に応じて変換
         if not pd.api.types.is_datetime64_any_dtype(df["Date"]):
@@ -231,29 +242,33 @@ class ChartService:
 
         # 株価関連データを表示
         ax.plot(
-            df["Date"], df["AdjustmentClose"], label="株価", linewidth=2, color="black"
+            df["Date"],
+            df["AdjustmentClose"],
+            label="Stock Price",
+            linewidth=2,
+            color="black",
         )
         ax.plot(
             df["Date"],
             df["TheoreticalStockPrice"],
-            label="理論株価",
+            label="Theoretical Price",
             linestyle="--",
             color="orange",
         )
         ax.plot(
             df["Date"],
             df["TheoreticalStockPriceUpperLimit"],
-            label="理論株価上限",
+            label="Theoretical Price Upper",
             linestyle=":",
             color="red",
         )
         ax.plot(
-            df["Date"], df["SMA_200"], label="200日移動平均", alpha=0.7, color="purple"
+            df["Date"], df["SMA_200"], label="200-day MA", alpha=0.7, color="purple"
         )
 
         ax.legend(loc="upper left")
         ax.grid(True, alpha=0.3)
-        ax.set_ylabel("価格 (円)")
+        ax.set_ylabel("Price (JPY)")
 
         # X軸のフォーマット
         self._setup_x_axis(ax, minticks=2, maxticks=7)
