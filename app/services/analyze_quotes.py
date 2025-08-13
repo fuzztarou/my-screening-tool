@@ -16,6 +16,7 @@ import pandas as pd
 from app.utils.files import FileManager
 
 from app.services.fins import FINS_COLUMNS_TO_NUMERIC
+from app.services.daily_quotes import QUOTES_COLUMNS_TO_NUMERIC
 
 logger = logging.getLogger(__name__)
 
@@ -140,13 +141,13 @@ class IndicatorCalculator:
 
     def _set_asset_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """資産価値を計算"""
-        df["AssetValue"] = df["BPS"] * df["DiscountRate"]
+        df["AssetValue"] = df["BookValuePerShare"] * df["DiscountRate"]
         return df
 
     def _set_business_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """事業価値を計算"""
         df["BusinessValue"] = (
-            df["EPS"] * df["ROA"] * 150 * df["FinancialLeverageAdjustment"]
+            df["EarningsPerShare"] * df["ROA"] * 150 * df["FinancialLeverageAdjustment"]
         )
         return df
 
@@ -272,7 +273,13 @@ class StockDataProcessor:
             / code
             / f"{code}_{date_short}_quotes.csv"
         )
+
         df_quotes = pd.read_csv(quotes_path)
+        # 数値カラムを数値型に変換
+        df_quotes[QUOTES_COLUMNS_TO_NUMERIC] = df_quotes[
+            QUOTES_COLUMNS_TO_NUMERIC
+        ].apply(pd.to_numeric, errors="coerce")
+
         return df_quotes
 
     def _merge_fins_and_stock(self, code: str, df_quotes: pd.DataFrame) -> pd.DataFrame:
