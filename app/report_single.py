@@ -65,9 +65,9 @@ def report_single_company() -> None:
         logger.info("財務データを読み込みました。")
 
         # 株価データを分析
-        stock_metrics = processor.process_stock(code)
+        stock_metrics = processor.process_quotes([code], analysis_date)
         logger.info("証券コード %s のデータ分析が完了しました。", code)
-        logger.info("企業名: %s", stock_metrics.company_name)
+        logger.info("企業名: %s", stock_metrics[0].company_name)
 
         # ChartServiceを初期化
         chart_service = ChartService()
@@ -77,30 +77,32 @@ def report_single_company() -> None:
         logger.info("チャート作成を開始します...")
 
         # 株価チャート
-        price_chart_path = chart_service.create_price_chart(stock_metrics)
+        price_chart_path = chart_service.create_price_chart(stock_metrics[0])
         logger.info("株価チャートを作成しました: %s", price_chart_path)
 
         # 指標チャート
-        indicators_chart_path = chart_service.create_indicators_chart(stock_metrics)
+        indicators_chart_path = chart_service.create_indicators_chart(stock_metrics[0])
         logger.info("指標チャートを作成しました: %s", indicators_chart_path)
 
         # 出来高チャート
-        volume_chart_path = chart_service.create_volume_chart(stock_metrics)
+        volume_chart_path = chart_service.create_volume_chart(stock_metrics[0])
         logger.info("出来高チャートを作成しました: %s", volume_chart_path)
 
         # ローソクチャート（60日間）
         candlestick_chart_path = chart_service.create_candlestick_chart(
-            stock_metrics, days=60
+            stock_metrics[0], days=60
         )
         logger.info("ローソクチャートを作成しました: %s", candlestick_chart_path)
 
         # 株価総合チャート
-        stock_price_chart_path = chart_service.create_stock_price_chart(stock_metrics)
+        stock_price_chart_path = chart_service.create_stock_price_chart(
+            stock_metrics[0]
+        )
         logger.info("株価総合チャートを作成しました: %s", stock_price_chart_path)
 
         logger.info("=== 分析レポート作成完了 ===")
         logger.info("証券コード: %s", code)
-        logger.info("企業名: %s", stock_metrics.company_name)
+        logger.info("企業名: %s", stock_metrics[0].company_name)
         logger.info("分析日: %s", analysis_date)
         logger.info("作成されたチャート:")
         logger.info("  - 株価チャート: %s", price_chart_path)
