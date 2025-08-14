@@ -98,19 +98,29 @@ class FinsDataHandler:
         """
         existing_count = 0
         new_count = 0
+        processed_codes = []  # 5桁のLocalCodeを格納
 
         for code in stock_codes:
             try:
-                if self._csv_exists(code):
-                    existing_count += 1
-                    continue
-
                 # APIからデータ取得
                 df_fins = self._fetch_financial_data(code)
+                
+                # APIデータから5桁のLocalCodeを取得
+                if "LocalCode" in df_fins.columns and not df_fins.empty:
+                    api_code = str(df_fins["LocalCode"].iloc[0])
+                else:
+                    api_code = code
+                
+                # 5桁のAPIコードでファイル存在チェック
+                if self._csv_exists(api_code):
+                    existing_count += 1
+                    processed_codes.append(api_code)
+                    continue
 
-                # CSV保存
-                self._save_to_csv(df_fins, code)
+                # CSV保存（5桁のAPIコードを使用）
+                self._save_to_csv(df_fins, api_code)
                 new_count += 1
+                processed_codes.append(api_code)
 
             except Exception:
                 logger.exception(
@@ -118,8 +128,8 @@ class FinsDataHandler:
                     code,
                 )
 
-        # 統合ファイルを作成
-        self._create_consolidated_file(stock_codes)
+        # 統合ファイルを作成（5桁のコードを使用）
+        self._create_consolidated_file(processed_codes)
 
         # 上場企業情報ファイルを作成
         listed_info_handler = ListedInfoHandler(
@@ -165,8 +175,9 @@ class FinsDataHandler:
         return df
 
     def _save_to_csv(self, df: pd.DataFrame, stock_code: str) -> Path:
-        """DataFrameをCSVファイルとして保存"""
+        """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
         date_str = self.file_manager.get_date_string()
+        # 5桁のAPIコードでディレクトリとファイル名を作成
         code_dir = self.file_manager.base_dir / "temporary" / date_str / stock_code
         self.file_manager.ensure_directory_exists(code_dir)
 
@@ -174,7 +185,7 @@ class FinsDataHandler:
         date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
         file_path = code_dir / f"{stock_code}_{date_short}_fins.csv"
         df.to_csv(file_path, index=False)
-        logger.info("財務データを保存しました: %s", file_path)
+        logger.info("財務データを保存しました: %s (LocalCode: %s)", file_path, stock_code)
         return file_path
 
     def _create_consolidated_file(self, stock_codes: list[str]) -> None:

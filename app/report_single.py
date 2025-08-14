@@ -44,8 +44,9 @@ def report_single_company() -> None:
 
     # 株価データを取得
     try:
-        daily_quotes_handler.fetch_and_save_daily_quotes(stock_codes=[code])
+        api_codes = daily_quotes_handler.fetch_and_save_daily_quotes(stock_codes=[code])
         logger.info("証券コード %s の株価データを取得・保存しました。", code)
+        logger.info("APIから取得した企業コード: %s", api_codes)
     except Exception as e:
         logger.exception("証券コード %s の株価データ取得に失敗しました: %s", code, e)
         return
@@ -64,8 +65,9 @@ def report_single_company() -> None:
         processor.load_fins_data(analysis_date)
         logger.info("財務データを読み込みました。")
 
-        # 株価データを分析
-        stock_metrics = processor.process_quotes([code], analysis_date)
+        # 株価データを分析 - APIから取得したコードを使用
+        codes_to_process = api_codes if api_codes else [code]
+        stock_metrics = processor.process_quotes(codes_to_process, analysis_date)
         logger.info("証券コード %s のデータ分析が完了しました。", code)
         logger.info("企業名: %s", stock_metrics[0].company_name)
 

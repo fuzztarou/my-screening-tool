@@ -64,27 +64,42 @@ class DailyQuotesDataHandler:
             dates.get_current_jst_date(), format_type=dates.DateFormat.YYYYMMDD
         )
 
-    def fetch_and_save_daily_quotes(self, stock_codes: list[str]) -> None:
+    def fetch_and_save_daily_quotes(self, stock_codes: list[str]) -> list[str]:
         """
         複数の証券コードの株価データを取得・保存
 
         Args:
             stock_codes: 証券コードのリスト
+
+        Returns:
+            list[str]: APIから取得したデータに含まれる企業コードのリスト（重複なし）
         """
         existing_count = 0
         new_count = 0
+        api_codes = []
 
         for code in stock_codes:
             try:
-                if self._csv_exists(code):
-                    existing_count += 1
-                    continue
-
                 # APIからデータ取得
                 df_quotes = self._fetch_daily_quotes(code)
 
-                # CSV保存
-                self._save_to_csv(df_quotes, code)
+                # APIデータから5桁の企業コードを取得
+                if "Code" in df_quotes.columns:
+                    unique_api_codes = df_quotes["Code"].unique().tolist()
+                    api_codes.extend(unique_api_codes)
+                    
+                    # 最初のAPIコードを使用（通常は1つのみ）
+                    api_code = str(unique_api_codes[0]) if unique_api_codes else code
+                else:
+                    api_code = code
+                
+                # 5桁のAPIコードでファイル存在チェック
+                if self._csv_exists(api_code):
+                    existing_count += 1
+                    continue
+
+                # CSV保存（5桁のAPIコードを使用）
+                self._save_to_csv(df_quotes, api_code)
                 new_count += 1
 
             except Exception:
@@ -96,11 +111,15 @@ class DailyQuotesDataHandler:
         # 最終結果をログで出力
         logger.info("既存CSV: %d個, 新規CSV: %d個", existing_count, new_count)
 
+        # 重複を削除して返却
+        return list(set(api_codes))
+
     def _csv_exists(self, stock_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
         date_str = self.file_manager.get_date_string()
         # 日付を YYMMDD 形式で取得
         date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
+        # 5桁のコードでチェック
         csv_path = (
             self.file_manager.base_dir
             / "temporary"
@@ -118,8 +137,9 @@ class DailyQuotesDataHandler:
         return pd.DataFrame(df)
 
     def _save_to_csv(self, df: pd.DataFrame, stock_code: str) -> Path:
-        """DataFrameをCSVファイルとして保存"""
+        """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
         date_str = self.file_manager.get_date_string()
+        # 5桁のAPIコードでディレクトリとファイル名を作成
         code_dir = self.file_manager.base_dir / "temporary" / date_str / stock_code
         self.file_manager.ensure_directory_exists(code_dir)
 
@@ -127,5 +147,5 @@ class DailyQuotesDataHandler:
         date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
         file_path = code_dir / f"{stock_code}_{date_short}_quotes.csv"
         df.to_csv(file_path, index=False)
-        logger.info("株価データを保存しました: %s", file_path)
+        logger.info("株価データを保存しました: %s (APIコード: %s)", file_path, stock_code)
         return file_path
