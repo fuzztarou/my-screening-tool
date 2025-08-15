@@ -204,7 +204,7 @@ class FinsDataHandler:
                 if csv_path.exists():
                     try:
                         df = pd.read_csv(
-                            csv_path, dtype={2: str}
+                            csv_path, dtype={"LocalCode": str}
                         )  # LocalCodeを文字列として読み込み
                         consolidated_dfs.append(df)
                         logger.debug("統合ファイルに追加: %s", csv_path)

@@ -248,7 +248,7 @@ class StockDataProcessor:
 
         # 財務情報を読み込み
         fins_path = self.file_manager.base_dir / "temporary" / date_str / "fins_org.csv"
-        self.df_fins = pd.read_csv(fins_path, dtype={2: str})
+        self.df_fins = pd.read_csv(fins_path, dtype={"LocalCode": str})
 
         # 数値カラムを数値型に変換
         self.df_fins[FINS_COLUMNS_TO_NUMERIC] = self.df_fins[
@@ -287,20 +287,40 @@ class StockDataProcessor:
         # Noneチェック
         assert self.df_fins is not None, "財務データが読み込まれていません"
 
-        # codeの財務情報だけを抽出
-        df_fins_extracted = self.df_fins[self.df_fins["LocalCode"] == code]
+        # codeの財務情報だけを抽出（LocalCodeは文字列として比較）
+        df_fins_extracted = self.df_fins[self.df_fins["LocalCode"] == str(code)].copy()
 
-        # 財務情報と株価情報を結合
-        df_merged = pd.merge(
+        # 財務データが存在しない場合は株価データをそのまま返す
+        if df_fins_extracted.empty:
+            logger.warning("コード %s の財務データが見つかりません", code)
+            return df_quotes
+
+        # 日付カラムをdatetime型に変換
+        df_fins_extracted["DisclosedDate"] = pd.to_datetime(
+            df_fins_extracted["DisclosedDate"]
+        )
+        df_quotes["Date"] = pd.to_datetime(df_quotes["Date"])
+
+        # 財務データを日付でソート
+        df_fins_extracted = df_fins_extracted.sort_values("DisclosedDate")
+
+        # 株価データも日付でソート
+        df_quotes = df_quotes.sort_values("Date")
+
+        # merge_asof を使用して、各株価日付に対して最新の財務データをマージ
+        # 株価の日付以前の最新の財務データを結合
+        df_merged = pd.merge_asof(
             df_quotes,
             df_fins_extracted,
             left_on="Date",
             right_on="DisclosedDate",
-            how="left",
+            direction="backward",
         )
 
-        # 欠損値を補完
+        # それでも欠損値がある場合（最初の財務データより前の株価データ）は前方補完
         df_merged.ffill(inplace=True)
+        # まだ欠損値がある場合は後方補完
+        df_merged.bfill(inplace=True)
 
         return df_merged
 
