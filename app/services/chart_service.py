@@ -55,6 +55,10 @@ class ChartService:
             mpl.dates.AutoDateLocator(minticks=minticks, maxticks=maxticks)
         )
         ax.xaxis.set_major_formatter(mpl.dates.DateFormatter("%Y-%m"))
+
+        # minor_locator を自動設定
+        ax.xaxis.set_minor_locator(mpl.ticker.AutoMinorLocator())
+
         plt.setp(ax.get_xticklabels(), rotation=45, fontsize=fontsize)
 
     def create_price_chart(self, stock_metrics: StockMetrics) -> Path:
