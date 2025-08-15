@@ -252,14 +252,14 @@ class ChartService:
             df["Date"],
             df["TheoreticalStockPrice"],
             label="Theoretical Price",
-            linestyle="--",
-            color="orange",
+            linewidth=2,
+            color="green",
         )
         ax.plot(
             df["Date"],
             df["TheoreticalStockPriceUpperLimit"],
             label="Theoretical Price Upper",
-            linestyle=":",
+            linewidth=2,
             color="red",
         )
         ax.plot(
