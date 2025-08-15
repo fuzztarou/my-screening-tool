@@ -120,7 +120,7 @@ class ChartService:
         # PER、PBR、ROEを同一グラフに表示
         ax.plot(df["Date"], df["PER"], label="PER", color="blue")
         ax.plot(df["Date"], df["PBR"], label="PBR", color="green")
-        ax.plot(df["Date"], df["ROE"], label="ROE", color="red")
+        ax.plot(df["Date"], df["ROE"] * 100, label="ROE", color="red")
 
         ax.legend(loc="upper left")
         ax.grid(True, alpha=0.3)

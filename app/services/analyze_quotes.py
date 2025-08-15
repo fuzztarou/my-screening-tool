@@ -65,7 +65,7 @@ class IndicatorCalculator:
 
     def _set_PER_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PER値を計算"""
-        df["PER"] = df["AdjustmentClose"] / (df["EarningsPerShare"])
+        df["PER"] = df["AdjustmentClose"] / (df["ForecastEarningsPerShare"])
         return df
 
     def _set_PBR_value(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -147,7 +147,10 @@ class IndicatorCalculator:
     def _set_business_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """事業価値を計算"""
         df["BusinessValue"] = (
-            df["EarningsPerShare"] * df["ROA"] * 150 * df["FinancialLeverageAdjustment"]
+            df["ForecastEarningsPerShare"]
+            * df["ROA"]
+            * 150
+            * df["FinancialLeverageAdjustment"]
         )
         return df
 
