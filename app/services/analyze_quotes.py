@@ -43,6 +43,7 @@ class IndicatorCalculator:
 
     def calculate_all_indicators(self, df: pd.DataFrame) -> pd.DataFrame:
         """全ての指標を計算"""
+        df = self._set_AdjustmentBPS_value(df)
         df = self._set_PER_value(df)
         df = self._set_PBR_value(df)
         df = self._set_ROE_value(df)
@@ -63,6 +64,14 @@ class IndicatorCalculator:
         df = self._set_theoretical_stock_price(df)
         return df
 
+    def _set_AdjustmentBPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
+        """最新の[期中平均株式数]で値を計算"""
+        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[0]
+        df["AdjustmentBPS"] = (
+            df["BookValuePerShare"] * df["AverageNumberOfShares"]
+        ) / AverageNumberOfShares
+        return df
+
     def _set_PER_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PER値を計算"""
         df["PER"] = df["AdjustmentClose"] / (df["ForecastEarningsPerShare"])
@@ -70,7 +79,7 @@ class IndicatorCalculator:
 
     def _set_PBR_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PBR値を計算"""
-        df["PBR"] = df["AdjustmentClose"] / (df["BookValuePerShare"])
+        df["PBR"] = df["AdjustmentClose"] / (df["AdjustmentBPS"])
         return df
 
     def _set_ROE_value(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -141,7 +150,7 @@ class IndicatorCalculator:
 
     def _set_asset_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """資産価値を計算"""
-        df["AssetValue"] = df["BookValuePerShare"] * df["DiscountRate"]
+        df["AssetValue"] = df["AdjustmentBPS"] * df["DiscountRate"]
         return df
 
     def _set_business_value(self, df: pd.DataFrame) -> pd.DataFrame:
