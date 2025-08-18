@@ -67,9 +67,7 @@ class IndicatorCalculator:
     def _set_AdjustmentBPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """最新の[期中平均株式数]で値を計算"""
         AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
-        df["AdjustmentBPS"] = (
-            df["BookValuePerShare"] * df["AverageNumberOfShares"]
-        ) / AverageNumberOfShares
+        df["AdjustmentBPS"] = df["Equity"] / AverageNumberOfShares
         return df
 
     def _set_PER_value(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -158,9 +156,11 @@ class IndicatorCalculator:
         return df
 
     def _set_business_value(self, df: pd.DataFrame) -> pd.DataFrame:
-        """事業価値を計算"""
+        """事業価値を計算(株式分割されると値がジャンプするので最新の発行済株数で計算)"""
+        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
         df["BusinessValue"] = (
-            df["ForecastEarningsPerShare"]
+            df["ForecastProfit"]
+            / AverageNumberOfShares
             * df["ROA"]
             * 150
             * df["FinancialLeverageAdjustment"]
