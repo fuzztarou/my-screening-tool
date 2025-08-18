@@ -66,20 +66,24 @@ class IndicatorCalculator:
 
     def _set_AdjustmentBPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """最新の[期中平均株式数]で値を計算"""
-        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[0]
+        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
         df["AdjustmentBPS"] = (
             df["BookValuePerShare"] * df["AverageNumberOfShares"]
         ) / AverageNumberOfShares
         return df
 
     def _set_PER_value(self, df: pd.DataFrame) -> pd.DataFrame:
-        """PER値を計算"""
-        df["PER"] = df["AdjustmentClose"] / (df["ForecastEarningsPerShare"])
+        """PER値を計算(株式分割されると値がジャンプするので最新の発行済株数で計算)"""
+        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
+        df["PER"] = df["AdjustmentClose"] / (
+            df["ForecastProfit"] / AverageNumberOfShares
+        )
         return df
 
     def _set_PBR_value(self, df: pd.DataFrame) -> pd.DataFrame:
-        """PBR値を計算"""
-        df["PBR"] = df["AdjustmentClose"] / (df["AdjustmentBPS"])
+        """PBR値を計算(株式分割されると値がジャンプするので最新の発行済株数で計算)"""
+        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
+        df["PBR"] = df["AdjustmentClose"] / (df["Equity"] / AverageNumberOfShares)
         return df
 
     def _set_ROE_value(self, df: pd.DataFrame) -> pd.DataFrame:
