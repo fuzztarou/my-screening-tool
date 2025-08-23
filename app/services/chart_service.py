@@ -289,6 +289,74 @@ class ChartService:
         plt.close(fig)
         return file_path
 
+    def create_profit_chart(self, stock_metrics: StockMetrics) -> Optional[Path]:
+        """純利益実績と予想チャートを作成"""
+        # fins.csvファイルを読み込み
+        date_str = self.file_manager.get_date_string(stock_metrics.analysis_date)
+        code_dir = (
+            self.file_manager.base_dir / "temporary" / date_str / stock_metrics.code
+        )
+        fins_path = (
+            code_dir / f"{stock_metrics.code}_{date_str.replace('-', '')[2:]}_fins.csv"
+        )
+
+        if not fins_path.exists():
+            logger.warning("財務データファイルが見つかりません: %s", fins_path)
+            return None
+
+        # 財務データを読み込み
+        df = pd.read_csv(fins_path)
+        df["DisclosedDate"] = pd.to_datetime(df["DisclosedDate"])
+
+        # Profitが存在する行のみ抽出
+        df = df[pd.notna(df["Profit"])].copy()
+
+        title = f"{stock_metrics.code} {stock_metrics.company_name} - Net Profit Trend"
+
+        # 1行1列のグラフを作成
+        fig, ax = plt.subplots(figsize=(12, 6))
+        fig.suptitle(title)
+
+        # 純利益実績をプロット
+        ax.plot(
+            df["DisclosedDate"],
+            df["Profit"] / 1e8,
+            label="Net Profit (Actual)",
+            linewidth=2,
+            color="blue",
+        )
+
+        # 純利益予想をプロット
+        df_forecast = df[pd.notna(df["ForecastProfit"])]
+        if not df_forecast.empty:
+            ax.plot(
+                df_forecast["DisclosedDate"],
+                df_forecast["ForecastProfit"] / 1e8,
+                label="Net Profit (Forecast)",
+                linestyle="--",
+                linewidth=2,
+                color="red",
+            )
+
+        ax.legend(loc="upper left")
+        ax.grid(True, alpha=0.3)
+        ax.set_ylabel("Net Profit (100 Million JPY)")
+
+        # X軸のフォーマット
+        self._setup_x_axis(ax, minticks=2, maxticks=7)
+
+        plt.tight_layout()
+
+        # 保存
+        file_path = self._save_chart(
+            fig,
+            f"{stock_metrics.code}_profit",
+            stock_metrics.analysis_date,
+            stock_metrics.code,
+        )
+        plt.close(fig)
+        return file_path
+
     def _save_chart(
         self, fig: plt.Figure, filename: str, date: datetime.date, code: str
     ) -> Path:
