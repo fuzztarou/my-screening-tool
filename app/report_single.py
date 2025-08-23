@@ -102,6 +102,13 @@ def report_single_company() -> None:
         )
         logger.info("株価総合チャートを作成しました: %s", stock_price_chart_path)
 
+        # 利益チャート
+        profit_chart_path = chart_service.create_profit_chart(stock_metrics[0])
+        if profit_chart_path:
+            logger.info("利益チャートを作成しました: %s", profit_chart_path)
+        else:
+            logger.warning("利益チャートの作成をスキップしました（データ不足）")
+
         logger.info("=== 分析レポート作成完了 ===")
         logger.info("証券コード: %s", code)
         logger.info("企業名: %s", stock_metrics[0].company_name)
@@ -112,6 +119,8 @@ def report_single_company() -> None:
         logger.info("  - 出来高チャート: %s", volume_chart_path)
         logger.info("  - ローソクチャート: %s", candlestick_chart_path)
         logger.info("  - 株価総合チャート: %s", stock_price_chart_path)
+        if profit_chart_path:
+            logger.info("  - 利益チャート: %s", profit_chart_path)
 
     except Exception as e:
         logger.exception("データ分析またはチャート作成に失敗しました: %s", e)
