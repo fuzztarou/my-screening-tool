@@ -241,63 +241,6 @@ class ChartService:
 
         return file_path
 
-    def create_stock_price_chart(self, stock_metrics: StockMetrics) -> Path:
-        """株価総合チャートを作成（株価関連データのみ）"""
-        df = stock_metrics.df_result.copy()
-        title = f"{stock_metrics.code} {stock_metrics.company_name} - Comprehensive Stock Chart"
-
-        # 日付データの型を確認し、必要に応じて変換
-        if not pd.api.types.is_datetime64_any_dtype(df["Date"]):
-            df["Date"] = pd.to_datetime(df["Date"])
-
-        # 1行1列のグラフを作成
-        fig, ax = plt.subplots(figsize=(12, 6))
-        fig.suptitle(title)
-
-        # 株価関連データを表示
-        ax.plot(
-            df["Date"],
-            df["AdjustmentClose"],
-            label="Stock Price",
-            linewidth=2,
-            color="black",
-        )
-        ax.plot(
-            df["Date"],
-            df["TheoreticalStockPrice"],
-            label="Theoretical Price",
-            linewidth=2,
-            color="green",
-        )
-        ax.plot(
-            df["Date"],
-            df["TheoreticalStockPriceUpperLimit"],
-            label="Theoretical Price Upper",
-            linewidth=2,
-            color="red",
-        )
-        ax.plot(
-            df["Date"], df["SMA_200"], label="200-day MA", alpha=0.7, color="purple"
-        )
-
-        ax.legend(loc="upper left")
-        ax.grid(True, alpha=0.3)
-        ax.set_ylabel("Price (JPY)")
-
-        # X軸のフォーマット
-        self._setup_x_axis(ax, minticks=2, maxticks=7)
-
-        plt.tight_layout()
-
-        # 保存
-        file_path = self._save_chart(
-            fig,
-            f"{stock_metrics.code}_stock_price",
-            stock_metrics.analysis_date,
-            stock_metrics.code,
-        )
-        plt.close(fig)
-        return file_path
 
     def create_profit_chart(self, stock_metrics: StockMetrics) -> Optional[Path]:
         """純利益実績と予想チャートを作成"""
