@@ -159,13 +159,23 @@ class ChartService:
 
         # 出来高を万株単位で表示
         volume_10k = df["Volume"] / 10000
-        smoothed_volume_10k = df["Smoothed_volume"] / 10000
+
+        # 移動平均を計算（万株単位）
+        volume_ma25 = df["Volume"].rolling(window=25, min_periods=1).mean() / 10000
+        volume_ma75 = df["Volume"].rolling(window=75, min_periods=1).mean() / 10000
 
         ax.bar(df["Date"], volume_10k, alpha=0.6, label="Volume", width=1)
         ax.plot(
             df["Date"],
-            smoothed_volume_10k,
-            label="Volume MA",
+            volume_ma25,
+            label="25-day MA",
+            color="orange",
+            linewidth=2,
+        )
+        ax.plot(
+            df["Date"],
+            volume_ma75,
+            label="75-day MA",
             color="red",
             linewidth=2,
         )
