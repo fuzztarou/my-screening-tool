@@ -311,31 +311,59 @@ class ChartService:
         # Profitが存在する行のみ抽出
         df = df[pd.notna(df["Profit"])].copy()
 
+        if df.empty:
+            logger.warning("利益データが見つかりません")
+            return None
+
+        # 日付範囲を作成（最初のデータから今日まで）
+        date_range = pd.date_range(
+            start=df["DisclosedDate"].min(), end=stock_metrics.analysis_date, freq="D"
+        )
+
+        # 日次データフレームを作成
+        df_daily = pd.DataFrame({"Date": date_range})
+
+        # 財務データを億円単位に変換
+        df["Profit_100M"] = df["Profit"] / 1e8
+        df["ForecastProfit_100M"] = df["ForecastProfit"] / 1e8
+
+        # 日次データに財務データをマージ（left join）
+        df_daily = pd.merge_asof(
+            df_daily.sort_values("Date"),
+            df[["DisclosedDate", "Profit_100M", "ForecastProfit_100M"]]
+            .rename(columns={"DisclosedDate": "Date"})
+            .sort_values("Date"),
+            on="Date",
+            direction="backward",
+        )
+
         title = f"{stock_metrics.code} {stock_metrics.company_name} - Net Profit Trend"
 
         # 1行1列のグラフを作成
         fig, ax = plt.subplots(figsize=(12, 6))
         fig.suptitle(title)
 
-        # 純利益実績をプロット
-        ax.plot(
-            df["DisclosedDate"],
-            df["Profit"] / 1e8,
+        # 純利益実績を階段状にプロット
+        ax.step(
+            df_daily["Date"],
+            df_daily["Profit_100M"],
+            where="post",
             label="Net Profit (Actual)",
             linewidth=2,
             color="blue",
         )
 
-        # 純利益予想をプロット
-        df_forecast = df[pd.notna(df["ForecastProfit"])]
-        if not df_forecast.empty:
-            ax.plot(
-                df_forecast["DisclosedDate"],
-                df_forecast["ForecastProfit"] / 1e8,
+        # 純利益予想を階段状にプロット
+        if df_daily["ForecastProfit_100M"].notna().any():
+            ax.step(
+                df_daily["Date"],
+                df_daily["ForecastProfit_100M"],
+                where="post",
                 label="Net Profit (Forecast)",
                 linestyle="--",
                 linewidth=2,
                 color="red",
+                alpha=0.7,
             )
 
         ax.legend(loc="upper left")
