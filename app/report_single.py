@@ -56,11 +56,7 @@ def report_single_company() -> None:
         processor = StockDataProcessor()
         logger.info("StockDataProcessorを初期化しました。")
 
-        # 株価データを分析 - APIから取得したコードを使用
-        codes_to_process = api_codes if api_codes else [code]
-        stock_metrics = processor.process_quotes(
-            codes_to_process, datetime.date.today()
-        )
+        stock_metrics = processor.process_quotes(api_codes, datetime.date.today())
         logger.info("証券コード %s のデータ分析が完了しました。", code)
 
         # PDFレポート生成
