@@ -104,78 +104,38 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
-    def create_profit_chart(self, ax: plt.Axes, stock_metrics: StockMetrics) -> bool:
+    def create_profit_chart(self, ax: plt.Axes, stock_metrics: StockMetrics) -> None:
         """利益チャートを作成（stock_metricsの財務データを直接使用）"""
-        try:
-            df = stock_metrics.df_result.copy()
+        df = stock_metrics.df_result.copy()
 
-            # 利益データが存在するかチェック
-            if "Profit" not in df.columns or df["Profit"].isna().all():
-                ax.text(
-                    0.5,
-                    0.5,
-                    "No profit data available",
-                    transform=ax.transAxes,
-                    ha="center",
-                    va="center",
-                    fontsize=10,
-                    color="gray",
-                )
-                ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
-                return False
+        # 利益データを億円単位に変換
+        df["Profit_100M"] = df["Profit"] / 1e8
+        df["ForecastProfit_100M"] = df["ForecastProfit"] / 1e8
 
-            # 日付データの型を確認し、必要に応じて変換
-            if not pd.api.types.is_datetime64_any_dtype(df["Date"]):
-                df["Date"] = pd.to_datetime(df["Date"])
+        # 実績利益をプロット
+        ax.step(
+            df["Date"],
+            df["Profit_100M"],
+            where="post",
+            label="Net Profit (Actual)",
+            linewidth=1.5,
+            color="blue",
+        )
 
-            # 利益データを億円単位に変換
-            df["Profit_100M"] = df["Profit"] / 1e8
-            df["ForecastProfit_100M"] = df["ForecastProfit"] / 1e8
+        # 予想利益をプロット
+        ax.step(
+            df["Date"],
+            df["ForecastProfit_100M"],
+            where="post",
+            label="Net Profit (Forecast)",
+            linestyle="--",
+            linewidth=1.5,
+            color="red",
+            alpha=0.7,
+        )
 
-            # 実績利益をプロット
-            ax.step(
-                df["Date"],
-                df["Profit_100M"],
-                where="post",
-                label="Net Profit (Actual)",
-                linewidth=1.5,
-                color="blue",
-            )
-
-            # 予想利益をプロット（データが存在する場合）
-            if (
-                "ForecastProfit" in df.columns
-                and df["ForecastProfit_100M"].notna().any()
-            ):
-                ax.step(
-                    df["Date"],
-                    df["ForecastProfit_100M"],
-                    where="post",
-                    label="Net Profit (Forecast)",
-                    linestyle="--",
-                    linewidth=1.5,
-                    color="red",
-                    alpha=0.7,
-                )
-
-            ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
-            ax.set_ylabel("Net Profit (100M JPY)", fontsize=9)
-            ax.legend(loc="upper left", fontsize=8)
-            ax.grid(True, alpha=0.3)
-            self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
-            return True
-
-        except Exception as e:
-            logger.warning("利益チャートの作成に失敗しました: %s", e)
-            ax.text(
-                0.5,
-                0.5,
-                "Error loading profit data",
-                transform=ax.transAxes,
-                ha="center",
-                va="center",
-                fontsize=10,
-                color="red",
-            )
-            ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
-            return False
+        ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
+        ax.set_ylabel("Net Profit (100M JPY)", fontsize=9)
+        ax.legend(loc="upper left", fontsize=8)
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
