@@ -7,14 +7,13 @@
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 import jquantsapi
 import pandas as pd
 
 from app.client.jq import create_client
-from app.services.listed_info import ListedInfoHandler
-from app.utils.files import DataType, FileManager
+from app.repository.listed_info import ListedInfoHandler
+from app.utils.files import FileManager
 
 logger = logging.getLogger(__name__)
 

@@ -7,8 +7,8 @@ import logging
 
 from .client.jq import create_client
 from .services.analyze_quotes import StockDataProcessor
-from .services.daily_quotes import DailyQuotesDataHandler
-from .services.fins import FinsDataHandler
+from .repository.quotes import DailyQuotesDataHandler
+from .repository.fins import FinsDataHandler
 from .services.pdf_report_service import PdfReportService
 
 logger = logging.getLogger(__name__)

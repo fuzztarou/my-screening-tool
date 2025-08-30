@@ -15,8 +15,8 @@ import pandas as pd
 
 from app.utils.files import FileManager
 
-from app.services.fins import FINS_COLUMNS_TO_NUMERIC
-from app.services.daily_quotes import QUOTES_COLUMNS_TO_NUMERIC
+from app.repository.fins import FINS_COLUMNS_TO_NUMERIC
+from app.repository.quotes import QUOTES_COLUMNS_TO_NUMERIC
 
 logger = logging.getLogger(__name__)
 
