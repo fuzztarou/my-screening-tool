@@ -215,8 +215,6 @@ class PdfReportService:
                 ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
                 return False
 
-            import pandas as pd
-
             df_fins = pd.read_csv(fins_path)
             df_fins["DisclosedDate"] = pd.to_datetime(df_fins["DisclosedDate"])
             df_fins = df_fins[pd.notna(df_fins["Profit"])].copy()
