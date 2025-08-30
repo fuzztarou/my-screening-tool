@@ -10,6 +10,7 @@ from .services.analyze_quotes import StockDataProcessor
 from .services.chart_service import ChartService
 from .services.daily_quotes import DailyQuotesDataHandler
 from .services.fins import FinsDataHandler
+from .services.pdf_report_service import PdfReportService
 
 logger = logging.getLogger(__name__)
 
@@ -90,18 +91,6 @@ def report_single_company() -> None:
         volume_chart_path = chart_service.create_volume_chart(stock_metrics[0])
         logger.info("出来高チャートを作成しました: %s", volume_chart_path)
 
-        # ローソクチャート（60日間）
-        candlestick_chart_path = chart_service.create_candlestick_chart(
-            stock_metrics[0], days=60
-        )
-        logger.info("ローソクチャートを作成しました: %s", candlestick_chart_path)
-
-        # 株価総合チャート
-        stock_price_chart_path = chart_service.create_stock_price_chart(
-            stock_metrics[0]
-        )
-        logger.info("株価総合チャートを作成しました: %s", stock_price_chart_path)
-
         # 利益チャート
         profit_chart_path = chart_service.create_profit_chart(stock_metrics[0])
         if profit_chart_path:
@@ -109,18 +98,22 @@ def report_single_company() -> None:
         else:
             logger.warning("利益チャートの作成をスキップしました（データ不足）")
 
+        # PDFレポート生成
+        pdf_service = PdfReportService()
+        pdf_report_path = pdf_service.create_comprehensive_report(stock_metrics[0])
+        logger.info("包括的なPDFレポートを作成しました: %s", pdf_report_path)
+
         logger.info("=== 分析レポート作成完了 ===")
         logger.info("証券コード: %s", code)
         logger.info("企業名: %s", stock_metrics[0].company_name)
         logger.info("分析日: %s", analysis_date)
-        logger.info("作成されたチャート:")
+        logger.info("作成されたファイル:")
         logger.info("  - 株価チャート: %s", price_chart_path)
         logger.info("  - 指標チャート: %s", indicators_chart_path)
         logger.info("  - 出来高チャート: %s", volume_chart_path)
-        logger.info("  - ローソクチャート: %s", candlestick_chart_path)
-        logger.info("  - 株価総合チャート: %s", stock_price_chart_path)
         if profit_chart_path:
             logger.info("  - 利益チャート: %s", profit_chart_path)
+        logger.info("  - 包括的PDFレポート: %s", pdf_report_path)
 
     except Exception as e:
         logger.exception("データ分析またはチャート作成に失敗しました: %s", e)
