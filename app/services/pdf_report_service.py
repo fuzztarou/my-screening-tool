@@ -182,7 +182,7 @@ class PdfReportService:
         ax.plot(df["Date"], volume_ma75, label="75-day MA", color="red", linewidth=1.5)
 
         ax.set_title("Volume Trend", fontsize=10, fontweight="bold")
-        ax.set_ylabel("Volume (万株)", fontsize=9)
+        ax.set_ylabel("Volume (10K)", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
         self._setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
@@ -279,7 +279,7 @@ class PdfReportService:
                 )
 
             ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
-            ax.set_ylabel("Net Profit (億円)", fontsize=9)
+            ax.set_ylabel("Net Profit (100M JPY)", fontsize=9)
             ax.legend(loc="upper left", fontsize=8)
             ax.grid(True, alpha=0.3)
             self._setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
