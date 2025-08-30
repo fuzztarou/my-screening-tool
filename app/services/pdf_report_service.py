@@ -186,40 +186,12 @@ class PdfReportService:
         self._setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def _create_profit_subplot(self, ax: plt.Axes, stock_metrics: StockMetrics) -> bool:
-        """利益サブプロットを作成"""
-
-        """ TODO: stock_metrics に財務データを含ませる """
-
+        """利益サブプロットを作成（stock_metricsの財務データを直接使用）"""
         try:
-            # 財務データを読み込み
-            date_str = self.file_manager.get_date_string(stock_metrics.analysis_date)
-            date_dir = (
-                self.file_manager.base_dir / "temporary" / date_str / stock_metrics.code
-            )
-            fins_path = (
-                date_dir
-                / f"{stock_metrics.code}_{date_str.replace('-', '')[2:]}_fins.csv"
-            )
+            df = stock_metrics.df_result.copy()
 
-            if not fins_path.exists():
-                ax.text(
-                    0.5,
-                    0.5,
-                    "Financial data not available",
-                    transform=ax.transAxes,
-                    ha="center",
-                    va="center",
-                    fontsize=10,
-                    color="gray",
-                )
-                ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
-                return False
-
-            df_fins = pd.read_csv(fins_path)
-            df_fins["DisclosedDate"] = pd.to_datetime(df_fins["DisclosedDate"])
-            df_fins = df_fins[pd.notna(df_fins["Profit"])].copy()
-
-            if df_fins.empty:
+            # 利益データが存在するかチェック
+            if "Profit" not in df.columns or df["Profit"].isna().all():
                 ax.text(
                     0.5,
                     0.5,
@@ -233,39 +205,32 @@ class PdfReportService:
                 ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
                 return False
 
-            # 日次データに変換（簡略版）
-            date_range = pd.date_range(
-                start=df_fins["DisclosedDate"].min(),
-                end=stock_metrics.analysis_date,
-                freq="D",
-            )
-            df_daily = pd.DataFrame({"Date": date_range})
-            df_fins["Profit_100M"] = df_fins["Profit"] / 1e8
-            df_fins["ForecastProfit_100M"] = df_fins["ForecastProfit"] / 1e8
+            # 日付データの型を確認し、必要に応じて変換
+            if not pd.api.types.is_datetime64_any_dtype(df["Date"]):
+                df["Date"] = pd.to_datetime(df["Date"])
 
-            df_daily = pd.merge_asof(
-                df_daily.sort_values("Date"),
-                df_fins[["DisclosedDate", "Profit_100M", "ForecastProfit_100M"]]
-                .rename(columns={"DisclosedDate": "Date"})
-                .sort_values("Date"),
-                on="Date",
-                direction="backward",
-            )
+            # 利益データを億円単位に変換
+            df["Profit_100M"] = df["Profit"] / 1e8
+            df["ForecastProfit_100M"] = df["ForecastProfit"] / 1e8
 
-            # プロット
+            # 実績利益をプロット
             ax.step(
-                df_daily["Date"],
-                df_daily["Profit_100M"],
+                df["Date"],
+                df["Profit_100M"],
                 where="post",
                 label="Net Profit (Actual)",
                 linewidth=1.5,
                 color="blue",
             )
 
-            if df_daily["ForecastProfit_100M"].notna().any():
+            # 予想利益をプロット（データが存在する場合）
+            if (
+                "ForecastProfit" in df.columns
+                and df["ForecastProfit_100M"].notna().any()
+            ):
                 ax.step(
-                    df_daily["Date"],
-                    df_daily["ForecastProfit_100M"],
+                    df["Date"],
+                    df["ForecastProfit_100M"],
                     where="post",
                     label="Net Profit (Forecast)",
                     linestyle="--",
