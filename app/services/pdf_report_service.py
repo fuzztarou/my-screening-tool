@@ -14,7 +14,6 @@ import pandas as pd
 from matplotlib.backends.backend_pdf import PdfPages
 
 from app.services.analyze_quotes import StockMetrics
-from app.services.chart_service import ChartService
 from app.utils.files import FileManager
 
 logger = logging.getLogger(__name__)
@@ -25,7 +24,6 @@ class PdfReportService:
 
     def __init__(self, file_manager: Optional[FileManager] = None):
         self.file_manager = file_manager or FileManager()
-        self.chart_service = ChartService(file_manager)
         self._setup_matplotlib()
 
     def _setup_matplotlib(self) -> None:
