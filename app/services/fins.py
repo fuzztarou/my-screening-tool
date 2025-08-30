@@ -104,13 +104,13 @@ class FinsDataHandler:
             try:
                 # APIからデータ取得
                 df_fins = self._fetch_financial_data(code)
-                
+
                 # APIデータから5桁のLocalCodeを取得
                 if "LocalCode" in df_fins.columns and not df_fins.empty:
                     api_code = str(df_fins["LocalCode"].iloc[0])
                 else:
                     api_code = code
-                
+
                 # 5桁のAPIコードでファイル存在チェック
                 if self._csv_exists(api_code):
                     existing_count += 1
@@ -185,7 +185,9 @@ class FinsDataHandler:
         date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
         file_path = code_dir / f"{stock_code}_{date_short}_fins.csv"
         df.to_csv(file_path, index=False)
-        logger.info("財務データを保存しました: %s (LocalCode: %s)", file_path, stock_code)
+        logger.info(
+            "財務データを保存しました: %s (LocalCode: %s)", file_path, stock_code
+        )
         return file_path
 
     def _create_consolidated_file(self, stock_codes: list[str]) -> None:
