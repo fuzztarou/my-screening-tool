@@ -19,23 +19,6 @@ from config.config import config
 
 logger = logging.getLogger(__name__)
 
-# 株価データの数値変換用
-# https://jpx.gitbook.io/j-quants-ja/api-reference/daily_quotes
-QUOTES_COLUMNS_TO_NUMERIC = [
-    "Open",
-    "High",
-    "Low",
-    "Close",
-    "Volume",
-    "TurnoverValue",
-    "AdjustmentFactor",
-    "AdjustmentOpen",
-    "AdjustmentHigh",
-    "AdjustmentLow",
-    "AdjustmentClose",
-    "AdjustmentVolume",
-]
-
 
 class DailyQuotesDataHandler:
     """株価データ取得・保存・分析ハンドラークラス"""

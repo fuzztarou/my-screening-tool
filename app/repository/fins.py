@@ -12,63 +12,12 @@ import jquantsapi
 import pandas as pd
 
 from app.client.jq import create_client
+from app.constants import FINS_COLUMNS_TO_EXTRACT, FINS_COLUMNS_TO_NUMERIC
 from app.repository.listed_info import ListedInfoHandler
 from app.utils.files import FileManager
 from app.utils.stock_code import normalize_stock_codes
 
 logger = logging.getLogger(__name__)
-
-# 財務データのフィルタリング用
-FINS_COLUMNS_TO_EXTRACT = [
-    "DisclosedDate",
-    "LocalCode",
-    "TypeOfDocument",
-    "NetSales",
-    "OperatingProfit",
-    "OrdinaryProfit",
-    "Profit",
-    "EarningsPerShare",
-    "ForecastNetSales",
-    "ForecastOperatingProfit",
-    "ForecastOrdinaryProfit",
-    "ForecastProfit",
-    "ForecastEarningsPerShare",
-    "NextYearForecastNetSales",
-    "NextYearForecastOperatingProfit",
-    "NextYearForecastOrdinaryProfit",
-    "NextYearForecastProfit",
-    "NextYearForecastEarningsPerShare",
-    "TotalAssets",
-    "Equity",
-    "EquityToAssetRatio",
-    "BookValuePerShare",
-    "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock",
-    "AverageNumberOfShares",
-]
-
-FINS_COLUMNS_TO_NUMERIC = [
-    "NetSales",
-    "OperatingProfit",
-    "OrdinaryProfit",
-    "Profit",
-    "EarningsPerShare",
-    "ForecastNetSales",
-    "ForecastOperatingProfit",
-    "ForecastOrdinaryProfit",
-    "ForecastProfit",
-    "ForecastEarningsPerShare",
-    "NextYearForecastNetSales",
-    "NextYearForecastOperatingProfit",
-    "NextYearForecastOrdinaryProfit",
-    "NextYearForecastProfit",
-    "NextYearForecastEarningsPerShare",
-    "TotalAssets",
-    "Equity",
-    "EquityToAssetRatio",
-    "BookValuePerShare",
-    "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock",  # 発行済株式数
-    "AverageNumberOfShares",
-]
 
 
 class FinsDataHandler:

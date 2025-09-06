@@ -14,9 +14,7 @@ import numpy as np
 import pandas as pd
 
 from app.utils.files import FileManager
-
-from app.repository.fins import FINS_COLUMNS_TO_NUMERIC
-from app.repository.quotes import QUOTES_COLUMNS_TO_NUMERIC
+from app.constants import FINS_COLUMNS_TO_NUMERIC, QUOTES_COLUMNS_TO_NUMERIC
 
 logger = logging.getLogger(__name__)
 
