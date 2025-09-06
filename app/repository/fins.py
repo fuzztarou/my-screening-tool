@@ -12,7 +12,7 @@ import jquantsapi
 import pandas as pd
 
 from app.client.jq import create_client
-from app.constants import FINS_COLUMNS_TO_EXTRACT, FINS_COLUMNS_TO_NUMERIC
+from app.constants import FINS_COLUMNS_TO_EXTRACT
 from app.repository.listed_info import ListedInfoHandler
 from app.utils.files import FileManager
 from app.utils.stock_code import normalize_stock_codes
