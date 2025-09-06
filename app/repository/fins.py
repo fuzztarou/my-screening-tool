@@ -15,7 +15,6 @@ from app.client.jq import create_client
 from app.constants import FINS_COLUMNS_TO_EXTRACT
 from app.repository.listed_info import ListedInfoHandler
 from app.utils.files import FileManager
-from app.utils.stock_code import normalize_stock_codes
 
 logger = logging.getLogger(__name__)
 
@@ -43,19 +42,12 @@ class FinsDataHandler:
         複数の証券コードの財務データを取得・保存
 
         Args:
-            input_codes: 証券コードのリスト
+            input_codes: 正規化済み証券コードのリスト
         """
         existing_count = 0
         new_count = 0
 
-        try:
-            # 証券コードのリストを一括で5桁に正規化
-            processed_codes = normalize_stock_codes(input_codes)
-        except ValueError as e:
-            logger.error("証券コードの正規化に失敗しました: %s", e)
-            return
-
-        for i, normalized_code in enumerate(processed_codes):
+        for i, normalized_code in enumerate(input_codes):
             try:
                 is_new = self._process_single_stock_code(normalized_code)
 
@@ -71,7 +63,7 @@ class FinsDataHandler:
                 )
 
         # 統合ファイルを作成（5桁のコードを使用）
-        self._create_consolidated_file(processed_codes)
+        self._create_consolidated_file(input_codes)
 
         # 上場企業情報ファイルを作成
         listed_info_handler = ListedInfoHandler(

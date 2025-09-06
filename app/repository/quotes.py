@@ -14,7 +14,6 @@ import pandas as pd
 from app.client.jq import create_client
 from app.utils import dates
 from app.utils.files import FileManager
-from app.utils.stock_code import normalize_stock_codes
 from config.config import config
 
 logger = logging.getLogger(__name__)
@@ -53,7 +52,7 @@ class DailyQuotesDataHandler:
         複数の証券コードの株価データを取得・保存
 
         Args:
-            stock_codes: 証券コードのリスト
+            stock_codes: 正規化済み証券コードのリスト
 
         Returns:
             list[str]: 正規化された企業コードのリスト（重複なし）
@@ -61,14 +60,7 @@ class DailyQuotesDataHandler:
         existing_count = 0
         new_count = 0
 
-        try:
-            # 証券コードのリストを一括で5桁に正規化
-            normalized_codes = normalize_stock_codes(stock_codes)
-        except ValueError as e:
-            logger.error("証券コードの正規化に失敗しました: %s", e)
-            return []
-
-        for i, normalized_code in enumerate(normalized_codes):
+        for i, normalized_code in enumerate(stock_codes):
             try:
                 # 単一証券コードの処理を実行
                 is_new_data = self._process_single_stock_code(normalized_code)
@@ -87,7 +79,7 @@ class DailyQuotesDataHandler:
         logger.info("既存CSV: %d個, 新規CSV: %d個", existing_count, new_count)
 
         # 重複を削除して返却
-        return list(set(normalized_codes))
+        return list(set(stock_codes))
 
     def _process_single_stock_code(self, stock_code: str) -> bool:
         """
