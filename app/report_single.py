@@ -18,19 +18,14 @@ logger = logging.getLogger(__name__)
 def report_single_company() -> None:
     """特定の企業の分析レポートを作成する関数"""
 
-    logger.info("Hello from report_single_company!")
+    logger.info("=== 企業分析レポート作成開始 ===")
 
     # クライアントを作成
     client = create_client()
-    logger.info("J-Quants APIクライアントを作成しました。")
 
-    # FinsDataHandlerを初期化
+    # ハンドラーを初期化
     fins_handler = FinsDataHandler(client=client)
-    logger.info("FinsDataHandlerを初期化しました。")
-
-    # DailyQuotesDataHandlerを初期化
     daily_quotes_handler = DailyQuotesDataHandler(client=client)
-    logger.info("DailyQuotesDataHandlerを初期化しました。")
 
     # ユーザーからコードの入力
     input_code = input("企業の証券コードを入力してください: ").strip()
@@ -46,7 +41,6 @@ def report_single_company() -> None:
     # 財務データを取得（正規化済みコードを使用）
     try:
         fins_handler.fetch_and_save_financial_data(normalized_codes=[normalized_code])
-        logger.info("証券コード %s の財務データを取得・保存しました。", normalized_code)
     except Exception as e:
         logger.exception(
             "証券コード %s のデータ取得に失敗しました: %s", normalized_code, e
@@ -58,28 +52,23 @@ def report_single_company() -> None:
         normalized_codes = daily_quotes_handler.fetch_and_save_daily_quotes(
             normalized_codes=[normalized_code]
         )
-        logger.info("証券コード %s の株価データを取得・保存しました。", normalized_code)
     except Exception as e:
         logger.exception(
             "証券コード %s の株価データ取得に失敗しました: %s", normalized_code, e
         )
         return
 
-    # データ分析とチャート作成
+    # データ分析とレポート作成
     try:
-        # StockDataProcessorを初期化
+        logger.info("データ分析を開始します...")
         processor = StockDataProcessor()
-        logger.info("StockDataProcessorを初期化しました。")
-
         stock_metrics = processor.process_quotes(
             normalized_codes, datetime.date.today()
         )
-        logger.info("証券コード %s のデータ分析が完了しました。", input_code)
 
-        # PDFレポート生成
+        logger.info("PDFレポート生成を開始します...")
         pdf_service = PdfReportService()
         pdf_report_path = pdf_service.create_comprehensive_report(stock_metrics[0])
-        logger.info("包括的なPDFレポートを作成しました: %s", pdf_report_path)
 
         logger.info("=== 分析レポート作成完了 ===")
         logger.info(

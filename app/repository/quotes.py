@@ -57,6 +57,10 @@ class DailyQuotesDataHandler:
         Returns:
             list[str]: 正規化された企業コードのリスト（重複なし）
         """
+        logger.info(
+            "株価データの取得・保存を開始します（対象: %d銘柄）", len(normalized_codes)
+        )
+
         existing_count = 0
         new_count = 0
 
@@ -76,7 +80,11 @@ class DailyQuotesDataHandler:
                 )
 
         # 最終結果をログで出力
-        logger.info("既存CSV: %d個, 新規CSV: %d個", existing_count, new_count)
+        logger.info(
+            "株価データ取得完了 - 既存CSV: %d個, 新規CSV: %d個",
+            existing_count,
+            new_count,
+        )
 
         # 重複を削除して返却
         return list(set(normalized_codes))

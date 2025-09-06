@@ -207,7 +207,7 @@ class StockDataProcessor:
         Returns:
             処理結果のリスト
         """
-        logger.info("=== Analyze quotes ===")
+        logger.info("株価分析処理を開始します（対象: %d銘柄）", len(codes))
 
         # 財務データを読み込み
         self.load_fins_data(date)
@@ -248,6 +248,7 @@ class StockDataProcessor:
             except Exception as e:
                 logger.exception("銘柄 %s の分析に失敗: %s", code, e)
 
+        logger.info("株価分析処理が完了しました（成功: %d銘柄）", len(results))
         return results
 
     def load_fins_data(self, date: datetime.date) -> None:

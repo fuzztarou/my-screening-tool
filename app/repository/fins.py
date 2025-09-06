@@ -44,6 +44,10 @@ class FinsDataHandler:
         Args:
             normalized_codes: 正規化済み証券コードのリスト
         """
+        logger.info(
+            "財務データの取得・保存を開始します（対象: %d銘柄）", len(normalized_codes)
+        )
+
         existing_count = 0
         new_count = 0
 
@@ -72,7 +76,11 @@ class FinsDataHandler:
         listed_info_handler.create_listed_info_file()
 
         # 最終結果をログで出力
-        logger.info("既存CSV: %d個, 新規CSV: %d個", existing_count, new_count)
+        logger.info(
+            "財務データ取得完了 - 既存CSV: %d個, 新規CSV: %d個",
+            existing_count,
+            new_count,
+        )
 
     def _process_single_stock_code(self, normalized_code: str) -> bool:
         """
