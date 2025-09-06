@@ -14,6 +14,7 @@ import pandas as pd
 from app.client.jq import create_client
 from app.repository.listed_info import ListedInfoHandler
 from app.utils.files import FileManager
+from app.utils.stock_code import normalize_stock_code
 
 logger = logging.getLogger(__name__)
 
@@ -97,29 +98,25 @@ class FinsDataHandler:
         """
         existing_count = 0
         new_count = 0
-        processed_codes = []  # 5桁のLocalCodeを格納
+        processed_codes = []  # 正規化された5桁コードを格納
 
         for code in stock_codes:
             try:
+                # 証券コードを5桁に正規化
+                normalized_code = normalize_stock_code(code)
+                processed_codes.append(normalized_code)
+
+                # 正規化されたコードでファイル存在チェック
+                if self._csv_exists(normalized_code):
+                    existing_count += 1
+                    continue
+
                 # APIからデータ取得
                 df_fins = self._fetch_financial_data(code)
 
-                # APIデータから5桁のLocalCodeを取得
-                if "LocalCode" in df_fins.columns and not df_fins.empty:
-                    api_code = str(df_fins["LocalCode"].iloc[0])
-                else:
-                    api_code = code
-
-                # 5桁のAPIコードでファイル存在チェック
-                if self._csv_exists(api_code):
-                    existing_count += 1
-                    processed_codes.append(api_code)
-                    continue
-
-                # CSV保存（5桁のAPIコードを使用）
-                self._save_to_csv(df_fins, api_code)
+                # CSV保存（正規化されたコードを使用）
+                self._save_to_csv(df_fins, normalized_code)
                 new_count += 1
-                processed_codes.append(api_code)
 
             except Exception:
                 logger.exception(
