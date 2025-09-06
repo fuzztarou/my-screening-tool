@@ -14,7 +14,7 @@ import pandas as pd
 from app.client.jq import create_client
 from app.repository.listed_info import ListedInfoHandler
 from app.utils.files import FileManager
-from app.utils.stock_code import normalize_stock_code
+from app.utils.stock_code import normalize_stock_codes
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ class FinsDataHandler:
         self.client = client or create_client()
         self.file_manager = file_manager or FileManager()
 
-    def fetch_and_save_financial_data(self, stock_codes: list[str]) -> None:
+    def fetch_and_save_financial_data(self, input_codes: list[str]) -> None:
         """
         複数の証券コードの財務データを取得・保存
 
@@ -98,14 +98,16 @@ class FinsDataHandler:
         """
         existing_count = 0
         new_count = 0
-        processed_codes = []  # 正規化された5桁コードを格納
 
-        for code in stock_codes:
+        try:
+            # 証券コードのリストを一括で5桁に正規化
+            processed_codes = normalize_stock_codes(input_codes)
+        except ValueError as e:
+            logger.error("証券コードの正規化に失敗しました: %s", e)
+            return
+
+        for i, normalized_code in enumerate(processed_codes):
             try:
-                # 証券コードを5桁に正規化
-                normalized_code = normalize_stock_code(code)
-                processed_codes.append(normalized_code)
-
                 is_new = self._process_single_stock_code(normalized_code)
 
                 if is_new:
@@ -116,7 +118,7 @@ class FinsDataHandler:
             except Exception:
                 logger.exception(
                     "証券コード %s のデータ取得・保存に失敗しました",
-                    code,
+                    input_codes[i],
                 )
 
         # 統合ファイルを作成（5桁のコードを使用）

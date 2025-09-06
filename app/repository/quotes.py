@@ -14,7 +14,7 @@ import pandas as pd
 from app.client.jq import create_client
 from app.utils import dates
 from app.utils.files import FileManager
-from app.utils.stock_code import normalize_stock_code
+from app.utils.stock_code import normalize_stock_codes
 from config.config import config
 
 logger = logging.getLogger(__name__)
@@ -77,21 +77,23 @@ class DailyQuotesDataHandler:
         """
         existing_count = 0
         new_count = 0
-        normalized_codes = []
 
-        for code in stock_codes:
+        try:
+            # 証券コードのリストを一括で5桁に正規化
+            normalized_codes = normalize_stock_codes(stock_codes)
+        except ValueError as e:
+            logger.error("証券コードの正規化に失敗しました: %s", e)
+            return []
+
+        for i, normalized_code in enumerate(normalized_codes):
             try:
-                # 証券コードを5桁に正規化
-                normalized_code = normalize_stock_code(code)
-                normalized_codes.append(normalized_code)
-
                 # 正規化されたコードでファイル存在チェック
                 if self._csv_exists(normalized_code):
                     existing_count += 1
                     continue
 
-                # APIからデータ取得
-                df_quotes = self._fetch_daily_quotes(code)
+                # APIからデータ取得（元のコードを使用）
+                df_quotes = self._fetch_daily_quotes(stock_codes[i])
 
                 # CSV保存（正規化されたコードを使用）
                 self._save_to_csv(df_quotes, normalized_code)
@@ -100,7 +102,7 @@ class DailyQuotesDataHandler:
             except Exception:
                 logger.exception(
                     "証券コード %s の株価データ取得・保存に失敗しました",
-                    code,
+                    stock_codes[i],
                 )
 
         # 最終結果をログで出力
