@@ -88,9 +88,7 @@ class DailyQuotesDataHandler:
         for i, normalized_code in enumerate(normalized_codes):
             try:
                 # 単一証券コードの処理を実行
-                is_new_data = self._process_single_stock_code(
-                    stock_codes[i], normalized_code
-                )
+                is_new_data = self._process_single_stock_code(normalized_code)
                 if is_new_data:
                     new_count += 1
                 else:
@@ -108,9 +106,7 @@ class DailyQuotesDataHandler:
         # 重複を削除して返却
         return list(set(normalized_codes))
 
-    def _process_single_stock_code(
-        self, original_code: str, normalized_code: str
-    ) -> bool:
+    def _process_single_stock_code(self, stock_code: str) -> bool:
         """
         単一の証券コードに対する株価データ処理
 
@@ -122,14 +118,14 @@ class DailyQuotesDataHandler:
             bool: 新規データを保存した場合True、既存データの場合False
         """
         # 正規化されたコードでファイル存在チェック
-        if self._csv_exists(normalized_code):
+        if self._csv_exists(stock_code):
             return False
 
         # APIからデータ取得（元のコードを使用）
-        df_quotes = self._fetch_daily_quotes(original_code)
+        df_quotes = self._fetch_daily_quotes(stock_code)
 
         # CSV保存（正規化されたコードを使用）
-        self._save_to_csv(df_quotes, normalized_code)
+        self._save_to_csv(df_quotes, stock_code)
         return True
 
     def _csv_exists(self, stock_code: str) -> bool:
