@@ -45,7 +45,7 @@ def report_single_company() -> None:
 
     # 財務データを取得（正規化済みコードを使用）
     try:
-        fins_handler.fetch_and_save_financial_data(input_codes=[normalized_code])
+        fins_handler.fetch_and_save_financial_data(normalized_codes=[normalized_code])
         logger.info("証券コード %s の財務データを取得・保存しました。", normalized_code)
     except Exception as e:
         logger.exception(
@@ -56,7 +56,7 @@ def report_single_company() -> None:
     # 株価データを取得（正規化済みコードを使用）
     try:
         normalized_codes = daily_quotes_handler.fetch_and_save_daily_quotes(
-            stock_codes=[normalized_code]
+            normalized_codes=[normalized_code]
         )
         logger.info("証券コード %s の株価データを取得・保存しました。", normalized_code)
     except Exception as e:

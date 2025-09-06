@@ -37,17 +37,17 @@ class FinsDataHandler:
         self.client = client or create_client()
         self.file_manager = file_manager or FileManager()
 
-    def fetch_and_save_financial_data(self, input_codes: list[str]) -> None:
+    def fetch_and_save_financial_data(self, normalized_codes: list[str]) -> None:
         """
         複数の証券コードの財務データを取得・保存
 
         Args:
-            input_codes: 正規化済み証券コードのリスト
+            normalized_codes: 正規化済み証券コードのリスト
         """
         existing_count = 0
         new_count = 0
 
-        for i, normalized_code in enumerate(input_codes):
+        for i, normalized_code in enumerate(normalized_codes):
             try:
                 is_new = self._process_single_stock_code(normalized_code)
 
@@ -59,11 +59,11 @@ class FinsDataHandler:
             except Exception:
                 logger.exception(
                     "証券コード %s のデータ取得・保存に失敗しました",
-                    input_codes[i],
+                    normalized_codes[i],
                 )
 
         # 統合ファイルを作成（5桁のコードを使用）
-        self._create_consolidated_file(input_codes)
+        self._create_consolidated_file(normalized_codes)
 
         # 上場企業情報ファイルを作成
         listed_info_handler = ListedInfoHandler(
@@ -99,7 +99,7 @@ class FinsDataHandler:
 
         return True
 
-    def _csv_exists(self, stock_code: str) -> bool:
+    def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
         date_str = self.file_manager.get_date_string()
         # 日付を YYMMDD 形式で取得
@@ -108,14 +108,14 @@ class FinsDataHandler:
             self.file_manager.base_dir
             / "temporary"
             / date_str
-            / stock_code
-            / f"{stock_code}_{date_short}_fins.csv"
+            / normalized_code
+            / f"{normalized_code}_{date_short}_fins.csv"
         )
         return bool(csv_path.exists())
 
-    def _fetch_financial_data(self, stock_code: str) -> pd.DataFrame:
+    def _fetch_financial_data(self, normalized_code: str) -> pd.DataFrame:
         """APIから財務データを取得"""
-        df = self.client.get_fins_statements(code=stock_code, date_yyyymmdd="")
+        df = self.client.get_fins_statements(code=normalized_code, date_yyyymmdd="")
 
         # 日付でソート（重要！）
         df = df.sort_values("DisclosedDate").reset_index(drop=True)
@@ -133,23 +133,23 @@ class FinsDataHandler:
 
         return df
 
-    def _save_to_csv(self, df: pd.DataFrame, stock_code: str) -> Path:
+    def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
         date_str = self.file_manager.get_date_string()
         # 5桁のAPIコードでディレクトリとファイル名を作成
-        code_dir = self.file_manager.base_dir / "temporary" / date_str / stock_code
+        code_dir = self.file_manager.base_dir / "temporary" / date_str / normalized_code
         self.file_manager.ensure_directory_exists(code_dir)
 
         # 日付を YYMMDD 形式で取得
         date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
-        file_path = code_dir / f"{stock_code}_{date_short}_fins.csv"
+        file_path = code_dir / f"{normalized_code}_{date_short}_fins.csv"
         df.to_csv(file_path, index=False)
         logger.info(
-            "財務データを保存しました: %s (LocalCode: %s)", file_path, stock_code
+            "財務データを保存しました: %s (LocalCode: %s)", file_path, normalized_code
         )
         return file_path
 
-    def _create_consolidated_file(self, stock_codes: list[str]) -> None:
+    def _create_consolidated_file(self, normalized_codes: list[str]) -> None:
         """個別の財務ファイルを統合してfins_org.csvを作成"""
         try:
             date_str = self.file_manager.get_date_string()
@@ -160,8 +160,12 @@ class FinsDataHandler:
 
             # 各証券コードのファイルを読み込み（新しいディレクトリ構造）
             date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
-            for code in stock_codes:
-                csv_path = base_dir / code / f"{code}_{date_short}_fins.csv"
+            for normalized_code in normalized_codes:
+                csv_path = (
+                    base_dir
+                    / normalized_code
+                    / f"{normalized_code}_{date_short}_fins.csv"
+                )
                 if csv_path.exists():
                     try:
                         df = pd.read_csv(
