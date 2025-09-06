@@ -23,8 +23,10 @@ def normalize_stock_code(input_code: str) -> str:
         "13010"
         >>> normalize_stock_code("25935")
         "25935"
+        >>> normalize_stock_code("215a")
+        "215A0"
     """
-    code = str(input_code).strip()
+    code = str(input_code).strip().upper()  # 大文字に変換
 
     if len(code) == 4:
         # 4桁の場合: 末尾に0を追加
