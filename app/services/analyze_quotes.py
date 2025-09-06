@@ -18,11 +18,6 @@ from app.constants import FINS_COLUMNS_TO_NUMERIC, QUOTES_COLUMNS_TO_NUMERIC
 
 logger = logging.getLogger(__name__)
 
-# 長すぎるカラム名
-LATEST_SHARES = (
-    "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock"
-)
-
 
 @dataclass
 class StockMetrics:
