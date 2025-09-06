@@ -106,17 +106,12 @@ class FinsDataHandler:
                 normalized_code = normalize_stock_code(code)
                 processed_codes.append(normalized_code)
 
-                # 正規化されたコードでファイル存在チェック
-                if self._csv_exists(normalized_code):
+                is_new = self._process_single_stock_code(normalized_code)
+
+                if is_new:
+                    new_count += 1
+                else:
                     existing_count += 1
-                    continue
-
-                # APIからデータ取得
-                df_fins = self._fetch_financial_data(code)
-
-                # CSV保存（正規化されたコードを使用）
-                self._save_to_csv(df_fins, normalized_code)
-                new_count += 1
 
             except Exception:
                 logger.exception(
@@ -135,6 +130,31 @@ class FinsDataHandler:
 
         # 最終結果をログで出力
         logger.info("既存CSV: %d個, 新規CSV: %d個", existing_count, new_count)
+
+    def _process_single_stock_code(self, normalized_code: str) -> bool:
+        """
+        単一の証券コードを処理
+
+        Args:
+            normalized_code: 正規化済み証券コード（5桁）
+
+        Returns:
+            新規作成フラグ: True=新規作成, False=既存ファイル
+
+        Raises:
+            Exception: データ取得・保存に失敗した場合
+        """
+        # 正規化されたコードでファイル存在チェック
+        if self._csv_exists(normalized_code):
+            return False
+
+        # APIからデータ取得
+        df_fins = self._fetch_financial_data(normalized_code)
+
+        # CSV保存（正規化されたコードを使用）
+        self._save_to_csv(df_fins, normalized_code)
+
+        return True
 
     def _csv_exists(self, stock_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
