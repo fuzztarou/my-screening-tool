@@ -94,7 +94,7 @@ class FinsDataHandler:
         複数の証券コードの財務データを取得・保存
 
         Args:
-            stock_codes: 証券コードのリスト
+            input_codes: 証券コードのリスト
         """
         existing_count = 0
         new_count = 0

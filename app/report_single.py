@@ -36,7 +36,7 @@ def report_single_company() -> None:
 
     # 財務データを取得
     try:
-        fins_handler.fetch_and_save_financial_data(stock_codes=[code])
+        fins_handler.fetch_and_save_financial_data(input_codes=[code])
         logger.info("証券コード %s の財務データを取得・保存しました。", code)
     except Exception as e:
         logger.exception("証券コード %s のデータ取得に失敗しました: %s", code, e)
