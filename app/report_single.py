@@ -30,7 +30,7 @@ def report_single_company() -> None:
     # ユーザーからコードの入力
     input_code = input("企業の証券コードを入力してください: ").strip()
 
-    # 入力直後に正規化処理を実行
+    # 入力されたコードを正規化
     try:
         normalized_code = normalize_stock_code(input_code)
         logger.info("証券コード %s を %s に正規化しました", input_code, normalized_code)
@@ -38,7 +38,7 @@ def report_single_company() -> None:
         logger.error("無効な証券コード: %s", e)
         return
 
-    # 財務データを取得（正規化済みコードを使用）
+    # 財務データを取得
     try:
         fins_handler.prepare_financial_data(normalized_codes=[normalized_code])
     except Exception as e:
@@ -47,7 +47,7 @@ def report_single_company() -> None:
         )
         return
 
-    # 株価データを取得（正規化済みコードを使用）
+    # 株価データを取得
     try:
         normalized_codes = daily_quotes_handler.fetch_and_save_daily_quotes(
             normalized_codes=[normalized_code]
