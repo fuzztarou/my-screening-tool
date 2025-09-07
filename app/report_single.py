@@ -9,6 +9,7 @@ from .client.jq import create_client
 from .services.analyze_quotes import StockDataProcessor
 from .repository.quotes import DailyQuotesDataHandler
 from .repository.fins import FinsDataHandler
+from .repository.listed_info import ListedInfoHandler
 from .services.pdf_report_service import PdfReportService
 from .utils.stock_code import normalize_stock_code
 
@@ -26,6 +27,7 @@ def report_single_company() -> None:
     # ハンドラーを初期化
     fins_handler = FinsDataHandler(client=client)
     daily_quotes_handler = DailyQuotesDataHandler(client=client)
+    listed_info_handler = ListedInfoHandler(client=client)
 
     # ユーザーからコードの入力
     input_code = input("企業の証券コードを入力してください: ").strip()
@@ -45,6 +47,13 @@ def report_single_company() -> None:
         logger.exception(
             "証券コード %s のデータ取得に失敗しました: %s", normalized_code, e
         )
+        return
+
+    # 上場企業情報を取得
+    try:
+        listed_info_handler.create_listed_info_file()
+    except Exception as e:
+        logger.exception("上場企業情報の取得に失敗しました: %s", e)
         return
 
     # 株価データを取得

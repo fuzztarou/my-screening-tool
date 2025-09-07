@@ -13,7 +13,6 @@ import pandas as pd
 
 from app.client.jq import create_client
 from app.constants import FINS_COLUMNS_TO_EXTRACT
-from app.repository.listed_info import ListedInfoHandler
 from app.utils.files import FileManager
 
 logger = logging.getLogger(__name__)
@@ -68,12 +67,6 @@ class FinsDataHandler:
 
         # 統合ファイルを作成（5桁のコードを使用）
         self._create_consolidated_file(normalized_codes)
-
-        # 上場企業情報ファイルを作成
-        listed_info_handler = ListedInfoHandler(
-            client=self.client, file_manager=self.file_manager
-        )
-        listed_info_handler.create_listed_info_file()
 
         # 最終結果をログで出力
         logger.info(
