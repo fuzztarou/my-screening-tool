@@ -53,7 +53,7 @@ class FinsDataHandler:
 
         for i, normalized_code in enumerate(normalized_codes):
             try:
-                is_new = self._process_single_stock_code(normalized_code)
+                is_new = self._ensure_financial_csv(normalized_code)
 
                 if is_new:
                     new_count += 1
@@ -82,9 +82,9 @@ class FinsDataHandler:
             new_count,
         )
 
-    def _process_single_stock_code(self, normalized_code: str) -> bool:
+    def _ensure_financial_csv(self, normalized_code: str) -> bool:
         """
-        単一の証券コードを処理
+        指定銘柄の財務データCSVの存在を保証
 
         Args:
             normalized_code: 正規化済み証券コード（5桁）
