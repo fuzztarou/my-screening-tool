@@ -58,7 +58,7 @@ def report_single_company() -> None:
 
     # 株価データを取得
     try:
-        normalized_codes = daily_quotes_handler.prepare_daily_quotes_data(
+        daily_quotes_handler.prepare_daily_quotes_data(
             normalized_codes=[normalized_code]
         )
     except Exception as e:
@@ -72,7 +72,7 @@ def report_single_company() -> None:
         logger.info("データ分析を開始します...")
         processor = StockDataProcessor()
         stock_metrics = processor.process_quotes(
-            normalized_codes, datetime.date.today()
+            [normalized_code], datetime.date.today()
         )
 
         logger.info("PDFレポート生成を開始します...")

@@ -47,15 +47,12 @@ class DailyQuotesDataHandler:
             dates.get_current_jst_date(), format_type=dates.DateFormat.YYYYMMDD
         )
 
-    def prepare_daily_quotes_data(self, normalized_codes: list[str]) -> list[str]:
+    def prepare_daily_quotes_data(self, normalized_codes: list[str]) -> None:
         """
         複数の証券コードの株価データを準備
 
         Args:
             normalized_codes: 正規化済み証券コードのリスト
-
-        Returns:
-            list[str]: 正規化された企業コードのリスト（重複なし）
         """
         logger.info(
             "株価データの取得・保存を開始します（対象: %d銘柄）", len(normalized_codes)
@@ -85,9 +82,6 @@ class DailyQuotesDataHandler:
             existing_count,
             new_count,
         )
-
-        # 重複を削除して返却
-        return list(set(normalized_codes))
 
     def _ensure_stock_quotes_csv(self, normalized_code: str) -> bool:
         """
