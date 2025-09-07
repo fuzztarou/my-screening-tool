@@ -37,9 +37,9 @@ class FinsDataHandler:
         self.client = client or create_client()
         self.file_manager = file_manager or FileManager()
 
-    def fetch_and_save_financial_data(self, normalized_codes: list[str]) -> None:
+    def prepare_financial_data(self, normalized_codes: list[str]) -> None:
         """
-        複数の証券コードの財務データを取得・保存
+        複数の証券コードの財務データを準備
 
         Args:
             normalized_codes: 正規化済み証券コードのリスト

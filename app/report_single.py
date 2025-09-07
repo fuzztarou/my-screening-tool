@@ -40,7 +40,7 @@ def report_single_company() -> None:
 
     # 財務データを取得（正規化済みコードを使用）
     try:
-        fins_handler.fetch_and_save_financial_data(normalized_codes=[normalized_code])
+        fins_handler.prepare_financial_data(normalized_codes=[normalized_code])
     except Exception as e:
         logger.exception(
             "証券コード %s のデータ取得に失敗しました: %s", normalized_code, e
