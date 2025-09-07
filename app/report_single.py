@@ -58,7 +58,7 @@ def report_single_company() -> None:
 
     # 株価データを取得
     try:
-        normalized_codes = daily_quotes_handler.fetch_and_save_daily_quotes(
+        normalized_codes = daily_quotes_handler.prepare_daily_quotes_data(
             normalized_codes=[normalized_code]
         )
     except Exception as e:

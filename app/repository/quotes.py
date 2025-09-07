@@ -47,9 +47,9 @@ class DailyQuotesDataHandler:
             dates.get_current_jst_date(), format_type=dates.DateFormat.YYYYMMDD
         )
 
-    def fetch_and_save_daily_quotes(self, normalized_codes: list[str]) -> list[str]:
+    def prepare_daily_quotes_data(self, normalized_codes: list[str]) -> list[str]:
         """
-        複数の証券コードの株価データを取得・保存
+        複数の証券コードの株価データを準備
 
         Args:
             normalized_codes: 正規化済み証券コードのリスト
