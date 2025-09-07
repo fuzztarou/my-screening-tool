@@ -51,7 +51,7 @@ def report_single_company() -> None:
 
     # 上場企業情報を取得
     try:
-        listed_info_handler.create_listed_info_file()
+        listed_info_handler.prepare_listed_info_data()
     except Exception as e:
         logger.exception("上場企業情報の取得に失敗しました: %s", e)
         return

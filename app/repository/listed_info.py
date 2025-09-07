@@ -33,8 +33,8 @@ class ListedInfoHandler:
         self.client = client or create_client()
         self.file_manager = file_manager or FileManager()
 
-    def create_listed_info_file(self) -> None:
-        """上場企業情報ファイル（listed_info.csv）を作成"""
+    def prepare_listed_info_data(self) -> None:
+        """上場企業情報データを準備"""
         try:
             date_str = self.file_manager.get_date_string()
             listed_info_path = (
