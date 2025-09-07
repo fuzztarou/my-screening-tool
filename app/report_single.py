@@ -21,13 +21,13 @@ def report_single_company() -> None:
 
     logger.info("=== 企業分析レポート作成開始 ===")
 
-    # クライアントを作成
-    client = create_client()
+    # J-Quantsクライアントを作成
+    JQ_client = create_client()
 
     # ハンドラーを初期化
-    fins_handler = FinsDataHandler(client=client)
-    daily_quotes_handler = DailyQuotesDataHandler(client=client)
-    listed_info_handler = ListedInfoHandler(client=client)
+    fins_handler = FinsDataHandler(client=JQ_client)
+    daily_quotes_handler = DailyQuotesDataHandler(client=JQ_client)
+    listed_info_handler = ListedInfoHandler(client=JQ_client)
 
     # ユーザーからコードの入力
     input_code = input("企業の証券コードを入力してください: ").strip()
