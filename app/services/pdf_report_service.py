@@ -69,13 +69,13 @@ class PdfReportService:
                 ax1 = plt.subplot2grid((4, 1), (0, 0))
                 self.chart_creator.create_price_chart(ax1, df)
 
-                # 2. 指標チャート
-                ax2 = plt.subplot2grid((4, 1), (1, 0))
-                self.chart_creator.create_indicators_chart(ax2, df)
-
-                # 3. 出来高チャート
-                ax3 = plt.subplot2grid((4, 1), (2, 0))
+                # 2. 出来高チャート
+                ax3 = plt.subplot2grid((4, 1), (1, 0))
                 self.chart_creator.create_volume_chart(ax3, df)
+
+                # 3. 指標チャート
+                ax2 = plt.subplot2grid((4, 1), (2, 0))
+                self.chart_creator.create_indicators_chart(ax2, df)
 
                 # 4. 利益チャート (下部)
                 ax4 = plt.subplot2grid((4, 1), (3, 0))
