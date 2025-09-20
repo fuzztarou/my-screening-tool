@@ -6,6 +6,7 @@
 
 import logging
 from typing import Optional
+from matplotlib.axes import Axes
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -21,7 +22,7 @@ class ChartCreator:
 
     def setup_x_axis(
         self,
-        ax: plt.Axes,
+        ax: Axes,
         minticks: int = 3,
         maxticks: int = 8,
         fontsize: Optional[int] = None,
@@ -34,7 +35,7 @@ class ChartCreator:
         ax.xaxis.set_minor_locator(mpl.ticker.AutoMinorLocator())
         plt.setp(ax.get_xticklabels(), rotation=45, fontsize=fontsize)
 
-    def create_price_chart(self, ax: plt.Axes, df: pd.DataFrame) -> None:
+    def create_price_chart(self, ax: Axes, df: pd.DataFrame) -> None:
         """株価チャートを作成"""
         ax.plot(
             df["Date"],
@@ -74,7 +75,7 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
-    def create_indicators_chart(self, ax: plt.Axes, df: pd.DataFrame) -> None:
+    def create_indicators_chart(self, ax: Axes, df: pd.DataFrame) -> None:
         """指標チャートを作成"""
         ax.plot(df["Date"], df["PER"], label="PER", color="blue", linewidth=1.5)
         ax.plot(df["Date"], df["PBR"], label="PBR", color="green", linewidth=1.5)
@@ -86,7 +87,7 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
-    def create_volume_chart(self, ax: plt.Axes, df: pd.DataFrame) -> None:
+    def create_volume_chart(self, ax: Axes, df: pd.DataFrame) -> None:
         """出来高チャートを作成"""
         volume_10k = df["Volume"] / 10000
         volume_ma25 = df["Volume"].rolling(window=25, min_periods=1).mean() / 10000
@@ -104,7 +105,7 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
-    def create_profit_chart(self, ax: plt.Axes, stock_metrics: StockMetrics) -> None:
+    def create_profit_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
         """利益チャートを作成（stock_metricsの財務データを直接使用）"""
         df = stock_metrics.df_result.copy()
 
