@@ -4,6 +4,7 @@
 各種データのプロット処理を個別のメソッドとして実装します。
 """
 
+from pyparsing import line
 import pandas as pd
 from matplotlib.axes import Axes
 
@@ -17,7 +18,7 @@ class Plotter:
             df["Date"],
             df["AdjustmentClose"],
             label="Stock Price",
-            linewidth=1.5,
+            linewidth=1.2,
             color="blue",
         )
         ax.plot(
@@ -26,7 +27,7 @@ class Plotter:
             label="Theoretical Price",
             linestyle="--",
             linewidth=1,
-            color="green",
+            color="blue",
         )
         ax.plot(
             df["Date"],
@@ -34,16 +35,17 @@ class Plotter:
             label="Theoretical Upper",
             linestyle=":",
             linewidth=1,
-            color="red",
+            color="blue",
         )
-        ax.plot(
-            df["Date"],
-            df["SMA_200"],
-            label="200-day MA",
-            alpha=0.7,
-            linewidth=1,
-            color="purple",
-        )
+        # ax.plot(
+        #     df["Date"],
+        #     df["SMA_200"],
+        #     label="price 200-day MA",
+        #     linestyle="--",
+        #     alpha=0.7,
+        #     linewidth=1,
+        #     color="blue",
+        # )
 
     def plot_volume_bars(self, ax: Axes, df: pd.DataFrame, alpha: float = 0.6) -> None:
         """出来高のバーと移動平均線をプロット"""
@@ -53,9 +55,22 @@ class Plotter:
 
         ax.bar(df["Date"], volume_10k, alpha=alpha, label="Volume", width=1)
         ax.plot(
-            df["Date"], volume_ma25, label="25-day MA", color="orange", linewidth=1.5
+            df["Date"],
+            volume_ma25,
+            label="volume 25-day MA",
+            color="green",
+            linewidth=1,
+            alpha=alpha * 1.5,
         )
-        ax.plot(df["Date"], volume_ma75, label="75-day MA", color="red", linewidth=1.5)
+        ax.plot(
+            df["Date"],
+            volume_ma75,
+            label="volume 75-day MA",
+            color="green",
+            linewidth=1,
+            linestyle="--",
+            alpha=alpha * 1.5,
+        )
 
     def plot_sales(self, ax: Axes, df: pd.DataFrame) -> None:
         """売上高をプロット（実績と予想）"""
@@ -82,7 +97,7 @@ class Plotter:
             label="Net Sales (Forecast)",
             linestyle="--",
             linewidth=1.5,
-            color="purple",
+            color="red",
             alpha=0.7,
         )
 

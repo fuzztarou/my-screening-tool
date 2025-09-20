@@ -39,7 +39,6 @@ class ChartCreator:
         ax.xaxis.set_minor_locator(mpl.ticker.AutoMinorLocator())
         plt.setp(ax.get_xticklabels(), rotation=45, fontsize=fontsize)
 
-
     def create_price_chart(self, ax: Axes, df: pd.DataFrame) -> None:
         """株価チャートを作成"""
         self.plotter.plot_price_lines(ax, df)
