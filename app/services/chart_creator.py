@@ -138,6 +138,44 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
+    def create_operation_profit_chart(
+        self, ax: Axes, stock_metrics: StockMetrics
+    ) -> None:
+        """営業利益チャートを作成"""
+        df = stock_metrics.df_result.copy()
+
+        # 営業利益データを億円単位に変換
+        df["OperatingProfit_100M"] = df["OperatingProfit"] / 1e8
+        df["ForecastOperatingProfit_100M"] = df["ForecastOperatingProfit"] / 1e8
+
+        # 実績営業利益をプロット
+        ax.step(
+            df["Date"],
+            df["OperatingProfit_100M"],
+            where="post",
+            label="Operating Profit (Actual)",
+            linewidth=1.5,
+            color="green",
+        )
+
+        # 予想営業利益をプロット
+        ax.step(
+            df["Date"],
+            df["ForecastOperatingProfit_100M"],
+            where="post",
+            label="Operating Profit (Forecast)",
+            linestyle="--",
+            linewidth=1.5,
+            color="red",
+            alpha=0.7,
+        )
+
+        ax.set_title("Operating Profit Trend", fontsize=10, fontweight="bold")
+        ax.set_ylabel("Operating Profit (100M JPY)", fontsize=9)
+        ax.legend(loc="upper left", fontsize=8)
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
+
     def create_profit_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
         """利益チャートを作成（stock_metricsの財務データを直接使用）"""
         df = stock_metrics.df_result.copy()
