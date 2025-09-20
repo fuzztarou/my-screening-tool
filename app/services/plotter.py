@@ -169,4 +169,17 @@ class Plotter:
 
     def plot_roe(self, ax: Axes, df: pd.DataFrame) -> None:
         """ROEをプロット"""
-        ax.plot(df["Date"], df["ROE"] * 100, label="ROE(%)", color="red", linewidth=1.5)
+        ax.plot(
+            df["Date"], df["ROE"] * 100, label="ROE(%)", color="orange", linewidth=1.5
+        )
+
+    def plot_roa(self, ax: Axes, df: pd.DataFrame) -> None:
+        """ROAをプロット"""
+        ax.plot(
+            df["Date"],
+            df["ROA"] * 100,
+            label="ROA(%)",
+            color="orange",
+            linestyle="--",
+            linewidth=1,
+        )
