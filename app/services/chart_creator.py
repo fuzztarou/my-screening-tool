@@ -104,10 +104,7 @@ class ChartCreator:
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_price_chart_with_volume(self, ax: Axes, df: pd.DataFrame) -> None:
-        """
-        株価と出来高を統合したチャートを作成
-        株価はcreate_price_chartと同じ
-        """
+        """株価と出来高を統合したチャートを作成"""
         # 株価をプロット
         self._plot_price_lines(ax, df)
 
