@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class ChartCreator:
     """チャート作成専用クラス"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.plotter = Plotter()
 
     def setup_x_axis(
