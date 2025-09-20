@@ -138,6 +138,42 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
+    def create_sales_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
+        """売上高チャートを作成"""
+        df = stock_metrics.df_result.copy()
+
+        # 売上高データを億円単位に変換
+        df["NetSales_100M"] = df["NetSales"] / 1e8
+        df["ForecastNetSales_100M"] = df["ForecastNetSales"] / 1e8
+
+        # 実績売上高をプロット
+        ax.step(
+            df["Date"],
+            df["NetSales_100M"],
+            where="post",
+            label="Net Sales (Actual)",
+            linewidth=1.5,
+            color="purple",
+        )
+
+        # 予想売上高をプロット
+        ax.step(
+            df["Date"],
+            df["ForecastNetSales_100M"],
+            where="post",
+            label="Net Sales (Forecast)",
+            linestyle="--",
+            linewidth=1.5,
+            color="purple",
+            alpha=0.7,
+        )
+
+        ax.set_title("Net Sales Trend", fontsize=10, fontweight="bold")
+        ax.set_ylabel("Net Sales (100M JPY)", fontsize=9)
+        ax.legend(loc="upper left", fontsize=8)
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
+
     def create_operation_profit_chart(
         self, ax: Axes, stock_metrics: StockMetrics
     ) -> None:
