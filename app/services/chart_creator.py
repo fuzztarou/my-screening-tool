@@ -69,17 +69,9 @@ class ChartCreator:
             color="purple",
         )
 
-    def create_price_chart(self, ax: Axes, df: pd.DataFrame) -> None:
-        """株価チャートを作成"""
-        self._plot_price_lines(ax, df)
-
-        ax.set_title("Stock Price Trend", fontsize=10, fontweight="bold")
-        ax.set_ylabel("Price (JPY)", fontsize=9)
-        ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
-        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
-
-    def _plot_volume_bars_and_lines(self, ax: Axes, df: pd.DataFrame, alpha: float = 0.6) -> None:
+    def _plot_volume_bars_and_lines(
+        self, ax: Axes, df: pd.DataFrame, alpha: float = 0.6
+    ) -> None:
         """出来高のバーと移動平均線をプロットする共通メソッド"""
         volume_10k = df["Volume"] / 10000
         volume_ma25 = df["Volume"].rolling(window=25, min_periods=1).mean() / 10000
@@ -90,6 +82,26 @@ class ChartCreator:
             df["Date"], volume_ma25, label="25-day MA", color="orange", linewidth=1.5
         )
         ax.plot(df["Date"], volume_ma75, label="75-day MA", color="red", linewidth=1.5)
+
+    def create_price_chart(self, ax: Axes, df: pd.DataFrame) -> None:
+        """株価チャートを作成"""
+        self._plot_price_lines(ax, df)
+
+        ax.set_title("Stock Price Trend", fontsize=10, fontweight="bold")
+        ax.set_ylabel("Price (JPY)", fontsize=9)
+        ax.legend(loc="upper left", fontsize=8)
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
+
+    def create_volume_chart(self, ax: Axes, df: pd.DataFrame) -> None:
+        """出来高チャートを作成"""
+        self._plot_volume_bars_and_lines(ax, df)
+
+        ax.set_title("Volume Trend", fontsize=10, fontweight="bold")
+        ax.set_ylabel("Volume (10K)", fontsize=9)
+        ax.legend(loc="upper left", fontsize=8)
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_price_chart_with_volume(self, ax: Axes, df: pd.DataFrame) -> None:
         """
@@ -125,16 +137,6 @@ class ChartCreator:
 
         ax.set_title("Financial Indicators", fontsize=10, fontweight="bold")
         ax.set_ylabel("Ratio", fontsize=9)
-        ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
-        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
-
-    def create_volume_chart(self, ax: Axes, df: pd.DataFrame) -> None:
-        """出来高チャートを作成"""
-        self._plot_volume_bars_and_lines(ax, df)
-
-        ax.set_title("Volume Trend", fontsize=10, fontweight="bold")
-        ax.set_ylabel("Volume (10K)", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
