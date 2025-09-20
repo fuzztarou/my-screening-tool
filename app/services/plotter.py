@@ -4,7 +4,6 @@
 各種データのプロット処理を個別のメソッドとして実装します。
 """
 
-from pyparsing import line
 import pandas as pd
 from matplotlib.axes import Axes
 
