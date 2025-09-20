@@ -53,7 +53,9 @@ class Plotter:
         volume_ma25 = df["Volume"].rolling(window=25, min_periods=1).mean() / 10000
         volume_ma75 = df["Volume"].rolling(window=75, min_periods=1).mean() / 10000
 
-        ax.bar(df["Date"], volume_10k, alpha=alpha, label="Volume", width=1)
+        ax.bar(
+            df["Date"], volume_10k, color="green", alpha=alpha, label="Volume", width=1
+        )
         ax.plot(
             df["Date"],
             volume_ma25,
