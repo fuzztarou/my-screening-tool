@@ -87,6 +87,7 @@ class ChartCreator:
         self.plotter.plot_per(ax, df)
         self.plotter.plot_pbr(ax, df)
         self.plotter.plot_roe(ax, df)
+        self.plotter.plot_roa(ax, df)
 
         ax.set_title("Financial Indicators", fontsize=10, fontweight="bold")
         ax.set_ylabel("Ratio", fontsize=9)
