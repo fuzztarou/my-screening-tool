@@ -75,6 +75,84 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
+    def create_price_chart_with_volume(self, ax: Axes, df: pd.DataFrame) -> None:
+        """
+        株価と出来高を統合したチャートを作成
+        株価はcreate_price_chartと同じ
+        """
+        ax.plot(
+            df["Date"],
+            df["AdjustmentClose"],
+            label="Stock Price",
+            linewidth=1.3,
+            color="green",
+        )
+        ax.plot(
+            df["Date"],
+            df["TheoreticalStockPrice"],
+            label="Theoretical Price",
+            linestyle="--",
+            linewidth=1,
+            color="green",
+        )
+        ax.plot(
+            df["Date"],
+            df["TheoreticalStockPriceUpperLimit"],
+            label="Theoretical Upper",
+            linestyle=":",
+            linewidth=1,
+            color="green",
+        )
+        ax.plot(
+            df["Date"],
+            df["SMA_200"],
+            label="200-day MA",
+            alpha=0.7,
+            linewidth=1,
+            color="green",
+        )
+
+        # 右側に出来高チャート用のY軸を作成
+        ax2 = ax.twinx()
+
+        # 出来高チャートをプロット（右軸）
+        volume_10k = df["Volume"] / 10000
+        volume_ma25 = df["Volume"].rolling(window=25, min_periods=1).mean() / 10000
+        volume_ma75 = df["Volume"].rolling(window=75, min_periods=1).mean() / 10000
+
+        ax2.bar(  # type: ignore
+            df["Date"], volume_10k, alpha=0.3, label="Volume", width=1, color="blue"
+        )
+        ax2.plot(  # type: ignore
+            df["Date"],
+            volume_ma25,
+            label="25-day MA",
+            color="blue",
+            linewidth=1,
+            alpha=0.7,
+        )
+        ax2.plot(  # type: ignore
+            df["Date"],
+            volume_ma75,
+            label="75-day MA",
+            color="blue",
+            linewidth=1,
+            linestyle="--",
+            alpha=0.7,
+        )
+
+        ax.set_title("Stock Price & Volume Trend", fontsize=10, fontweight="bold")
+        ax.set_ylabel("Price (JPY)", fontsize=9)
+        ax2.set_ylabel("Volume (10K)", fontsize=9)
+
+        # 凡例を結合
+        lines1, labels1 = ax.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()  # type: ignore
+        ax.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=8)
+
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
+
     def create_indicators_chart(self, ax: Axes, df: pd.DataFrame) -> None:
         """指標チャートを作成"""
         ax.plot(df["Date"], df["PER"], label="PER", color="blue", linewidth=1.5)
