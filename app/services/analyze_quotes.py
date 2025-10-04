@@ -192,7 +192,7 @@ class StockDataProcessor:
 
         # データを保持するインスタンス変数
         self.df_fins: Optional[RawFinancialData] = None
-        self.code_name_dict: dict = {}
+        self.code_name_dict: dict[str, str] = {}
         self.target_date: Optional[datetime.date] = None
         self.analysis_cache: dict[str, StockMetrics] = {}
 
@@ -349,7 +349,7 @@ class StockDataProcessor:
 
         return df_merged
 
-    def _make_code_company_name_dict(self, date: datetime.date) -> dict:
+    def _make_code_company_name_dict(self, date: datetime.date) -> dict[str, str]:
         """銘柄コードと会社名の対応を辞書型で返す"""
         date_str = self.file_manager.get_date_string(date)
         listed_path = (
