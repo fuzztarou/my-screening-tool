@@ -12,6 +12,15 @@ from app.utils import dates
 
 
 # ========================================
+# CONSTANTS
+# ========================================
+TEMP_DIR = "temp"
+OUTPUTS_DIR = "outputs"
+FINS_TARGETS_FILE = "fins_targets.csv"
+LISTED_INFO_FILE = "listed_info.csv"
+
+
+# ========================================
 # ENUM
 # ========================================
 class DataType(Enum):
@@ -32,15 +41,16 @@ class FileManager:
     構造:
     data/
     ├── outputs/            # 出力データ(削除禁止)
-    │   ├── 2025-10-06/
-    │   └── 2025-10-07/
-    └── temporary/          # 一時データ(削除対象)
-        ├── 2025-10-06/
-        │   ├── fins/
-        │   ├── images/
-        │   ├── listed_info/
-        │   └── quotes/
-        └── 2025-10-07/
+    │   ├── 251006/
+    │   └── 251007/
+    └── temp/               # 一時データ(削除対象)
+        ├── 251006/
+        │   ├── 01234/
+        │   │   ├── 01234_251006_fins.csv
+        │   │   └── 01234_251006_quotes.csv
+        │   ├── fins_targets.csv
+        │   └── listed_info.csv
+        └── 251007/
     """
 
     def __init__(self, base_dir: str = "data"):
@@ -80,7 +90,7 @@ class FileManager:
         date_short = self.get_date_string_short(date)
         return (
             self.base_dir
-            / "temporary"
+            / TEMP_DIR
             / date_short
             / normalized_code
             / f"{normalized_code}_{date_short}_{data_type}.csv"
@@ -89,12 +99,12 @@ class FileManager:
     def get_fins_targets_path(self, date: datetime.date | None = None) -> Path:
         """対象企業の統合財務データファイルのパスを取得"""
         date_short = self.get_date_string_short(date)
-        return self.base_dir / "temporary" / date_short / "fins_targets.csv"
+        return self.base_dir / TEMP_DIR / date_short / FINS_TARGETS_FILE
 
     def get_listed_info_path(self, date: datetime.date | None = None) -> Path:
         """上場企業情報ファイルのパスを取得"""
         date_short = self.get_date_string_short(date)
-        return self.base_dir / "temporary" / date_short / "listed_info.csv"
+        return self.base_dir / TEMP_DIR / date_short / LISTED_INFO_FILE
 
     def ensure_directory_exists(self, path: Path) -> None:
         """ディレクトリが存在しない場合は作成"""
@@ -117,8 +127,8 @@ class FileManager:
         Returns:
             Path: 保存されたファイルのパス
         """
-        date_str = self.get_date_string(date)
-        file_path = self.base_dir / "outputs" / date_str / filename
+        date_short = self.get_date_string_short(date)
+        file_path = self.base_dir / OUTPUTS_DIR / date_short / filename
 
         self.ensure_directory_exists(file_path.parent)
 
@@ -147,8 +157,8 @@ class FileManager:
         Returns:
             Path: 保存されたファイルのパス
         """
-        date_str = self.get_date_string(date)
-        file_path = self.base_dir / "temporary" / date_str / data_type.value / filename
+        date_short = self.get_date_string_short(date)
+        file_path = self.base_dir / TEMP_DIR / date_short / data_type.value / filename
 
         self.ensure_directory_exists(file_path.parent)
         df.to_csv(file_path, index=False)
@@ -185,8 +195,8 @@ class FileManager:
     ) -> Path:
         """PNGファイルとして保存(拡張子自動付与)"""
         filename = f"{base_name}.png"
-        date_str = self.get_date_string(date)
-        file_path = self.base_dir / "temporary" / date_str / data_type.value / filename
+        date_short = self.get_date_string_short(date)
+        file_path = self.base_dir / TEMP_DIR / date_short / data_type.value / filename
 
         self.ensure_directory_exists(file_path.parent)
         file_path.write_bytes(content)
