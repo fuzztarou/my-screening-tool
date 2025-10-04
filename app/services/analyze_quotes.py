@@ -57,24 +57,27 @@ class IndicatorCalculator:
         df = self._set_theoretical_stock_price(df)
         return df
 
+    def _get_latest_average_shares(self, df: pd.DataFrame) -> float:
+        """最新の期中平均株式数を取得"""
+        return df["AverageNumberOfShares"].iloc[-1]
+
     def _set_AdjustmentBPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """最新の[期中平均株式数]で値を計算"""
-        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
-        df["AdjustmentBPS"] = df["Equity"] / AverageNumberOfShares
+        df["AdjustmentBPS"] = df["Equity"] / self._get_latest_average_shares(df)
         return df
 
     def _set_PER_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PER値を計算(株式分割されると値がジャンプするので最新の発行済株数で計算)"""
-        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
         df["PER"] = df["AdjustmentClose"] / (
-            df["ForecastProfit"] / AverageNumberOfShares
+            df["ForecastProfit"] / self._get_latest_average_shares(df)
         )
         return df
 
     def _set_PBR_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """PBR値を計算(株式分割されると値がジャンプするので最新の発行済株数で計算)"""
-        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
-        df["PBR"] = df["AdjustmentClose"] / (df["Equity"] / AverageNumberOfShares)
+        df["PBR"] = df["AdjustmentClose"] / (
+            df["Equity"] / self._get_latest_average_shares(df)
+        )
         return df
 
     def _set_ROE_value(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -150,10 +153,9 @@ class IndicatorCalculator:
 
     def _set_business_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """事業価値を計算(株式分割されると値がジャンプするので最新の発行済株数で計算)"""
-        AverageNumberOfShares = df["AverageNumberOfShares"].iloc[-1]
         df["BusinessValue"] = (
             df["ForecastProfit"]
-            / AverageNumberOfShares
+            / self._get_latest_average_shares(df)
             * df["ROA"]
             * 150
             * df["FinancialLeverageAdjustment"]
@@ -309,7 +311,9 @@ class StockDataProcessor:
         assert self.df_fins is not None, "財務データが読み込まれていません"
 
         # codeの財務情報だけを抽出（LocalCodeは文字列として比較）
-        df_fins_extracted = self.df_fins.df[self.df_fins.df["LocalCode"] == str(code)].copy()
+        df_fins_extracted = self.df_fins.df[
+            self.df_fins.df["LocalCode"] == str(code)
+        ].copy()
 
         # 財務データが存在しない場合は株価データをそのまま返す
         if df_fins_extracted.empty:
