@@ -5,5 +5,6 @@
 """
 
 from app.types.financial_data import RawFinancialData
+from app.types.quotes_data import RawQuotesData
 
-__all__ = ["RawFinancialData"]
+__all__ = ["RawFinancialData", "RawQuotesData"]
