@@ -275,10 +275,9 @@ class StockDataProcessor:
     def load_fins_data(self, date: datetime.date) -> None:
         """財務データを読み込み"""
         self.target_date = date
-        date_short = self.file_manager.get_date_string_short(date)
 
         # 財務情報を読み込み（バリデーション・数値変換を含む）
-        fins_path = self.file_manager.base_dir / "temporary" / date_short / "fins_org.csv"
+        fins_path = self.file_manager.get_consolidated_fins_path(date)
         self.df_fins = RawFinancialData.from_csv(str(fins_path))
 
         # 銘柄辞書を作成
@@ -289,13 +288,8 @@ class StockDataProcessor:
         assert self.target_date is not None, "分析日が設定されていません"
 
         # 株価情報を読み込み
-        date_short = self.file_manager.get_date_string_short(self.target_date)
-        quotes_path = (
-            self.file_manager.base_dir
-            / "temporary"
-            / date_short
-            / code
-            / f"{code}_{date_short}_quotes.csv"
+        quotes_path = self.file_manager.get_stock_data_path(
+            code, "quotes", self.target_date
         )
 
         # 株価データを読み込み（バリデーション・数値変換を含む）
@@ -349,10 +343,7 @@ class StockDataProcessor:
 
     def _make_code_company_name_dict(self, date: datetime.date) -> dict[str, str]:
         """銘柄コードと会社名の対応を辞書型で返す"""
-        date_short = self.file_manager.get_date_string_short(date)
-        listed_path = (
-            self.file_manager.base_dir / "temporary" / date_short / "listed_info.csv"
-        )
+        listed_path = self.file_manager.get_listed_info_path(date)
 
         df_listed = pd.read_csv(listed_path)
         return dict(zip(df_listed["Code"], df_listed["CompanyName"]))

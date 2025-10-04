@@ -106,15 +106,7 @@ class DailyQuotesDataHandler:
 
     def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
-        date_short = self.file_manager.get_date_string_short()
-        # 5桁のコードでチェック
-        csv_path = (
-            self.file_manager.base_dir
-            / "temporary"
-            / date_short
-            / normalized_code
-            / f"{normalized_code}_{date_short}_quotes.csv"
-        )
+        csv_path = self.file_manager.get_stock_data_path(normalized_code, "quotes")
         return bool(csv_path.exists())
 
     def _fetch_daily_quotes(self, normalized_code: str) -> pd.DataFrame:
@@ -126,12 +118,9 @@ class DailyQuotesDataHandler:
 
     def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
-        date_short = self.file_manager.get_date_string_short()
-        # 5桁のAPIコードでディレクトリとファイル名を作成
-        code_dir = self.file_manager.base_dir / "temporary" / date_short / normalized_code
-        self.file_manager.ensure_directory_exists(code_dir)
+        file_path = self.file_manager.get_stock_data_path(normalized_code, "quotes")
+        self.file_manager.ensure_directory_exists(file_path.parent)
 
-        file_path = code_dir / f"{normalized_code}_{date_short}_quotes.csv"
         df.to_csv(file_path, index=False)
         logger.info(
             "株価データを保存しました: %s (APIコード: %s)", file_path, normalized_code

@@ -61,6 +61,41 @@ class FileManager:
         target_date = date or self.today
         return dates.format_date(target_date, format_type=dates.DateFormat.YYMMDD)
 
+    def get_stock_data_path(
+        self,
+        normalized_code: str,
+        data_type: str,
+        date: datetime.date | None = None,
+    ) -> Path:
+        """銘柄コード別のデータファイルパスを取得
+
+        Args:
+            normalized_code: 正規化済み証券コード（5桁）
+            data_type: データタイプ（"fins" or "quotes"）
+            date: 日付（省略時は今日）
+
+        Returns:
+            Path: データファイルのパス
+        """
+        date_short = self.get_date_string_short(date)
+        return (
+            self.base_dir
+            / "temporary"
+            / date_short
+            / normalized_code
+            / f"{normalized_code}_{date_short}_{data_type}.csv"
+        )
+
+    def get_consolidated_fins_path(self, date: datetime.date | None = None) -> Path:
+        """統合財務データファイルのパスを取得"""
+        date_short = self.get_date_string_short(date)
+        return self.base_dir / "temporary" / date_short / "fins_org.csv"
+
+    def get_listed_info_path(self, date: datetime.date | None = None) -> Path:
+        """上場企業情報ファイルのパスを取得"""
+        date_short = self.get_date_string_short(date)
+        return self.base_dir / "temporary" / date_short / "listed_info.csv"
+
     def ensure_directory_exists(self, path: Path) -> None:
         """ディレクトリが存在しない場合は作成"""
         if not path.exists():

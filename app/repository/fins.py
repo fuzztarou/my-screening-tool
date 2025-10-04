@@ -102,14 +102,7 @@ class FinsDataHandler:
 
     def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
-        date_short = self.file_manager.get_date_string_short()
-        csv_path = (
-            self.file_manager.base_dir
-            / "temporary"
-            / date_short
-            / normalized_code
-            / f"{normalized_code}_{date_short}_fins.csv"
-        )
+        csv_path = self.file_manager.get_stock_data_path(normalized_code, "fins")
         return bool(csv_path.exists())
 
     def _fetch_financial_data(self, normalized_code: str) -> pd.DataFrame:
@@ -134,12 +127,9 @@ class FinsDataHandler:
 
     def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
-        date_short = self.file_manager.get_date_string_short()
-        # 5桁のAPIコードでディレクトリとファイル名を作成
-        code_dir = self.file_manager.base_dir / "temporary" / date_short / normalized_code
-        self.file_manager.ensure_directory_exists(code_dir)
+        file_path = self.file_manager.get_stock_data_path(normalized_code, "fins")
+        self.file_manager.ensure_directory_exists(file_path.parent)
 
-        file_path = code_dir / f"{normalized_code}_{date_short}_fins.csv"
         df.to_csv(file_path, index=False)
         logger.info(
             "財務データを保存しました: %s (LocalCode: %s)", file_path, normalized_code
@@ -149,19 +139,12 @@ class FinsDataHandler:
     def _create_consolidated_file(self, normalized_codes: list[str]) -> None:
         """個別の財務ファイルを統合してfins_org.csvを作成"""
         try:
-            date_short = self.file_manager.get_date_string_short()
-            base_dir = self.file_manager.base_dir / "temporary" / date_short
-
             # 統合用のDataFrameリスト
             consolidated_dfs = []
 
-            # 各証券コードのファイルを読み込み（新しいディレクトリ構造）
+            # 各証券コードのファイルを読み込み
             for normalized_code in normalized_codes:
-                csv_path = (
-                    base_dir
-                    / normalized_code
-                    / f"{normalized_code}_{date_short}_fins.csv"
-                )
+                csv_path = self.file_manager.get_stock_data_path(normalized_code, "fins")
                 if csv_path.exists():
                     try:
                         df = pd.read_csv(
@@ -176,8 +159,9 @@ class FinsDataHandler:
             if consolidated_dfs:
                 consolidated_df = pd.concat(consolidated_dfs, ignore_index=True)
 
-                # 統合ファイルを保存（ルートディレクトリに）
-                consolidated_path = base_dir / "fins_org.csv"
+                # 統合ファイルを保存
+                consolidated_path = self.file_manager.get_consolidated_fins_path()
+                self.file_manager.ensure_directory_exists(consolidated_path.parent)
                 consolidated_df.to_csv(consolidated_path, index=False)
                 logger.info("統合ファイルを作成しました: %s", consolidated_path)
                 logger.info("統合データ件数: %d件", len(consolidated_df))
