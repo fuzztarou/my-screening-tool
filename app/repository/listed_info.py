@@ -36,9 +36,9 @@ class ListedInfoHandler:
     def prepare_listed_info_data(self) -> None:
         """上場企業情報データを準備"""
         try:
-            date_str = self.file_manager.get_date_string()
+            date_short = self.file_manager.get_date_string_short()
             listed_info_path = (
-                self.file_manager.base_dir / "temporary" / date_str / "listed_info.csv"
+                self.file_manager.base_dir / "temporary" / date_short / "listed_info.csv"
             )
 
             # 既に存在する場合はスキップ

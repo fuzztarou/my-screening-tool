@@ -43,7 +43,10 @@ def format_date(
 
     Args:
         date: 日付(省略時は今日)
-        format_type: 出力形式(DateFormat.ISO: YYYY-MM-DD, DateFormat.YYYYMMDD: YYYYMMDD, DateFormat.YYMMDD: YYMMDD)
+        format_type: 出力形式
+            - DateFormat.ISO: YYYY-MM-DD
+            - DateFormat.YYYYMMDD: YYYYMMDD
+            - DateFormat.YYMMDD: YYMMDD
 
     Returns:
         str: 指定された形式の日付文字列

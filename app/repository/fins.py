@@ -102,12 +102,11 @@ class FinsDataHandler:
 
     def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
-        date_str = self.file_manager.get_date_string()
         date_short = self.file_manager.get_date_string_short()
         csv_path = (
             self.file_manager.base_dir
             / "temporary"
-            / date_str
+            / date_short
             / normalized_code
             / f"{normalized_code}_{date_short}_fins.csv"
         )
@@ -135,10 +134,9 @@ class FinsDataHandler:
 
     def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
-        date_str = self.file_manager.get_date_string()
         date_short = self.file_manager.get_date_string_short()
         # 5桁のAPIコードでディレクトリとファイル名を作成
-        code_dir = self.file_manager.base_dir / "temporary" / date_str / normalized_code
+        code_dir = self.file_manager.base_dir / "temporary" / date_short / normalized_code
         self.file_manager.ensure_directory_exists(code_dir)
 
         file_path = code_dir / f"{normalized_code}_{date_short}_fins.csv"
@@ -151,9 +149,8 @@ class FinsDataHandler:
     def _create_consolidated_file(self, normalized_codes: list[str]) -> None:
         """個別の財務ファイルを統合してfins_org.csvを作成"""
         try:
-            date_str = self.file_manager.get_date_string()
             date_short = self.file_manager.get_date_string_short()
-            base_dir = self.file_manager.base_dir / "temporary" / date_str
+            base_dir = self.file_manager.base_dir / "temporary" / date_short
 
             # 統合用のDataFrameリスト
             consolidated_dfs = []
