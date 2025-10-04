@@ -31,7 +31,7 @@ class FileManager:
 
     構造:
     data/
-    ├── reports/            # 長期保存(削除禁止)
+    ├── outputs/            # 出力データ(削除禁止)
     │   ├── 2025-10-06/
     │   └── 2025-10-07/
     └── temporary/          # 一時データ(削除対象)
@@ -78,7 +78,7 @@ class FileManager:
             Path: 保存されたファイルのパス
         """
         date_str = self.get_date_string(date)
-        file_path = self.base_dir / "reports" / date_str / filename
+        file_path = self.base_dir / "outputs" / date_str / filename
 
         self.ensure_directory_exists(file_path.parent)
 
