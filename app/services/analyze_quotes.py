@@ -214,42 +214,61 @@ class StockDataProcessor:
 
         results = []
         for i, code in enumerate(codes, start=1):
-            try:
-                logger.info("分析中: %s (%s/%s)", code, i, len(codes))
-
-                # 株価データ読み込み
-                df_quotes = self._load_stock_quotes(code)
-
-                # データマージ
-                df_merged = self._merge_fins_and_stock(code, df_quotes)
-
-                # 指標計算
-                df_calculated = self.calculator.calculate_all_indicators(df_merged)
-
-                # 理論株価計算
-                df_result = self.calculator.calculate_theoretical_price(df_calculated)
-
-                # 結果構築
-                company_name = self.code_name_dict.get(code, code)
-                assert self.target_date is not None, "分析日が設定されていません"
-                stock_metrics = StockMetrics(
-                    code=code,
-                    company_name=company_name,
-                    df_merged=df_merged,
-                    df_calculated=df_calculated,
-                    df_result=df_result,
-                    analysis_date=self.target_date,
-                )
-
-                # キャッシュと結果追加
-                self.analysis_cache[code] = stock_metrics
+            stock_metrics = self._analyze_single_stock(code, i, len(codes))
+            if stock_metrics is not None:
                 results.append(stock_metrics)
-
-            except Exception as e:
-                logger.exception("銘柄 %s の分析に失敗: %s", code, e)
 
         logger.info("株価分析処理が完了しました（成功: %d銘柄）", len(results))
         return results
+
+    def _analyze_single_stock(
+        self, code: str, index: int, total: int
+    ) -> Optional[StockMetrics]:
+        """
+        単一銘柄の分析を実行
+
+        Args:
+            code: 銘柄コード
+            index: 現在の処理番号（1始まり）
+            total: 総銘柄数
+
+        Returns:
+            分析結果。失敗時はNone
+        """
+        try:
+            logger.info("分析中: %s (%s/%s)", code, index, total)
+
+            # 株価データ読み込み
+            df_quotes = self._load_stock_quotes(code)
+
+            # データマージ
+            df_merged = self._merge_fins_and_stock(code, df_quotes)
+
+            # 指標計算
+            df_calculated = self.calculator.calculate_all_indicators(df_merged)
+
+            # 理論株価計算
+            df_result = self.calculator.calculate_theoretical_price(df_calculated)
+
+            # 結果構築
+            company_name = self.code_name_dict.get(code, code)
+            assert self.target_date is not None, "分析日が設定されていません"
+            stock_metrics = StockMetrics(
+                code=code,
+                company_name=company_name,
+                df_merged=df_merged,
+                df_calculated=df_calculated,
+                df_result=df_result,
+                analysis_date=self.target_date,
+            )
+
+            # キャッシュ
+            self.analysis_cache[code] = stock_metrics
+            return stock_metrics
+
+        except Exception as e:
+            logger.exception("銘柄 %s の分析に失敗: %s", code, e)
+            return None
 
     def load_fins_data(self, date: datetime.date) -> None:
         """財務データを読み込み"""
