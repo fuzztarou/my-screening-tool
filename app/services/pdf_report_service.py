@@ -39,7 +39,7 @@ class PdfReportService:
         """4つのチャートを統合した包括的なPDFレポートを作成"""
         # PDFファイルのパスを設定
         date_str = self.file_manager.get_date_string(stock_metrics.analysis_date)
-        date_dir = self.file_manager.base_dir / date_str
+        date_dir = self.file_manager.base_dir.parent / "outputs" / date_str
         self.file_manager.ensure_directory_exists(date_dir)
 
         date_short = date_str.replace("-", "")[2:]  # 2025-08-23 -> 250823
