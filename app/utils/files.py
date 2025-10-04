@@ -56,6 +56,11 @@ class FileManager:
         target_date = date or self.today
         return dates.format_date(target_date)
 
+    def get_date_string_short(self, date: datetime.date | None = None) -> str:
+        """日付を短縮形式で取得(YYMMDD形式: 251006)"""
+        target_date = date or self.today
+        return dates.format_date(target_date, format_type=dates.DateFormat.YYMMDD)
+
     def ensure_directory_exists(self, path: Path) -> None:
         """ディレクトリが存在しない場合は作成"""
         if not path.exists():

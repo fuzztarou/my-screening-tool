@@ -107,8 +107,7 @@ class DailyQuotesDataHandler:
     def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
         date_str = self.file_manager.get_date_string()
-        # 日付を YYMMDD 形式で取得
-        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
+        date_short = self.file_manager.get_date_string_short()
         # 5桁のコードでチェック
         csv_path = (
             self.file_manager.base_dir
@@ -129,12 +128,11 @@ class DailyQuotesDataHandler:
     def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
         date_str = self.file_manager.get_date_string()
+        date_short = self.file_manager.get_date_string_short()
         # 5桁のAPIコードでディレクトリとファイル名を作成
         code_dir = self.file_manager.base_dir / "temporary" / date_str / normalized_code
         self.file_manager.ensure_directory_exists(code_dir)
 
-        # 日付を YYMMDD 形式で取得
-        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
         file_path = code_dir / f"{normalized_code}_{date_short}_quotes.csv"
         df.to_csv(file_path, index=False)
         logger.info(

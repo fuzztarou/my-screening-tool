@@ -103,8 +103,7 @@ class FinsDataHandler:
     def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
         date_str = self.file_manager.get_date_string()
-        # 日付を YYMMDD 形式で取得
-        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
+        date_short = self.file_manager.get_date_string_short()
         csv_path = (
             self.file_manager.base_dir
             / "temporary"
@@ -137,12 +136,11 @@ class FinsDataHandler:
     def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
         date_str = self.file_manager.get_date_string()
+        date_short = self.file_manager.get_date_string_short()
         # 5桁のAPIコードでディレクトリとファイル名を作成
         code_dir = self.file_manager.base_dir / "temporary" / date_str / normalized_code
         self.file_manager.ensure_directory_exists(code_dir)
 
-        # 日付を YYMMDD 形式で取得
-        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
         file_path = code_dir / f"{normalized_code}_{date_short}_fins.csv"
         df.to_csv(file_path, index=False)
         logger.info(
@@ -154,13 +152,13 @@ class FinsDataHandler:
         """個別の財務ファイルを統合してfins_org.csvを作成"""
         try:
             date_str = self.file_manager.get_date_string()
+            date_short = self.file_manager.get_date_string_short()
             base_dir = self.file_manager.base_dir / "temporary" / date_str
 
             # 統合用のDataFrameリスト
             consolidated_dfs = []
 
             # 各証券コードのファイルを読み込み（新しいディレクトリ構造）
-            date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
             for normalized_code in normalized_codes:
                 csv_path = (
                     base_dir

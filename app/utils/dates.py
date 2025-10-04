@@ -14,6 +14,7 @@ class DateFormat(Enum):
 
     ISO = "iso"  # YYYY-MM-DD
     YYYYMMDD = "yyyymmdd"  # YYYYMMDD
+    YYMMDD = "yymmdd"  # YYMMDD (2桁年)
 
 
 # ========================================
@@ -42,7 +43,7 @@ def format_date(
 
     Args:
         date: 日付(省略時は今日)
-        format_type: 出力形式(DateFormat.ISO: YYYY-MM-DD, DateFormat.YYYYMMDD: YYYYMMDD)
+        format_type: 出力形式(DateFormat.ISO: YYYY-MM-DD, DateFormat.YYYYMMDD: YYYYMMDD, DateFormat.YYMMDD: YYMMDD)
 
     Returns:
         str: 指定された形式の日付文字列
@@ -53,6 +54,8 @@ def format_date(
         return target_date.strftime("%Y-%m-%d")
     if format_type == DateFormat.YYYYMMDD:
         return target_date.strftime("%Y%m%d")
+    if format_type == DateFormat.YYMMDD:
+        return target_date.strftime("%y%m%d")
 
     msg = f"Unsupported format_type: {format_type}"
     raise ValueError(msg)

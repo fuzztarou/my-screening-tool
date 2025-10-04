@@ -290,8 +290,7 @@ class StockDataProcessor:
 
         # 株価情報を読み込み
         date_str = self.file_manager.get_date_string(self.target_date)
-        # 日付を YYMMDD 形式で取得
-        date_short = date_str.replace("-", "")[2:]  # 2025-08-12 -> 250812
+        date_short = self.file_manager.get_date_string_short(self.target_date)
         quotes_path = (
             self.file_manager.base_dir
             / "temporary"
