@@ -4,6 +4,7 @@ PDFレポート生成サービス
 複数のチャートを統合してPDFレポートを生成します。
 """
 
+import io
 import logging
 from pathlib import Path
 from typing import Optional
@@ -37,17 +38,14 @@ class PdfReportService:
 
     def create_comprehensive_report(self, stock_metrics: StockMetrics) -> Path:
         """4つのチャートを統合した包括的なPDFレポートを作成"""
-        # PDFファイルのパスを設定
-        date_str = self.file_manager.get_date_string(stock_metrics.analysis_date)
-        date_short = date_str.replace("-", "")[2:]  # 2025-08-23 -> 250823
+        # ファイル名を設定
+        date_short = self.file_manager.get_date_string_short(stock_metrics.analysis_date)
         filename = f"{stock_metrics.code}_{date_short}_comprehensive_report.pdf"
 
-        pdf_path = self.file_manager.base_dir / "outputs" / date_str / filename
-        self.file_manager.ensure_directory_exists(pdf_path.parent)
-
         try:
-            # PDFに4つのチャートを統合
-            with PdfPages(pdf_path) as pdf:
+            # PDFをメモリ上に作成
+            pdf_buffer = io.BytesIO()
+            with PdfPages(pdf_buffer) as pdf:
                 # A4サイズ(8.27 x 11.69 inch)のページを作成
                 fig = plt.figure(figsize=(8.27, 11.69))
 
@@ -88,6 +86,13 @@ class PdfReportService:
                 # PDFに保存
                 pdf.savefig(fig, bbox_inches="tight", dpi=150)
                 plt.close(fig)
+
+            # save_report()を使ってファイルを保存
+            pdf_path = self.file_manager.save_report(
+                content=pdf_buffer.getvalue(),
+                filename=filename,
+                date=stock_metrics.analysis_date,
+            )
 
         except UnicodeEncodeError as e:
             logger.error("PDFエンコードエラー: %s", e)
