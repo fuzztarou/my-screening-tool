@@ -354,17 +354,3 @@ class StockDataProcessor:
 
         df_listed = pd.read_csv(listed_path)
         return dict(zip(df_listed["Code"], df_listed["CompanyName"]))
-
-
-# 後方互換性のための関数インターフェース
-def process_quotes(codes: list[str]) -> None:
-    """
-    後方互換性のためのラッパー関数
-
-    Args:
-        codes: 銘柄コードのリスト
-    """
-    analyzer = StockDataProcessor()
-    # TODO: 日付の取得方法を設定から取得するように修正が必要
-    date = datetime.date.today()
-    analyzer.process_quotes(codes, date)
