@@ -89,7 +89,7 @@ class FileManager:
     def get_consolidated_fins_path(self, date: datetime.date | None = None) -> Path:
         """統合財務データファイルのパスを取得"""
         date_short = self.get_date_string_short(date)
-        return self.base_dir / "temporary" / date_short / "fins_org.csv"
+        return self.base_dir / "temporary" / date_short / "fins_targets.csv"
 
     def get_listed_info_path(self, date: datetime.date | None = None) -> Path:
         """上場企業情報ファイルのパスを取得"""

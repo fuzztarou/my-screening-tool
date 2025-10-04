@@ -66,7 +66,7 @@ class FinsDataHandler:
                 )
 
         # 統合ファイルを作成（5桁のコードを使用）
-        self._create_consolidated_file(normalized_codes)
+        self._create_fins_targets_file(normalized_codes)
 
         # 最終結果をログで出力
         logger.info(
@@ -136,8 +136,8 @@ class FinsDataHandler:
         )
         return file_path
 
-    def _create_consolidated_file(self, normalized_codes: list[str]) -> None:
-        """個別の財務ファイルを統合してfins_org.csvを作成"""
+    def _create_fins_targets_file(self, normalized_codes: list[str]) -> None:
+        """個別の財務ファイルを統合してfins_targets.csvを作成"""
         try:
             # 統合用のDataFrameリスト
             consolidated_dfs = []
