@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from app.utils.files import FileManager
-from app.constants import FINS_COLUMNS_TO_NUMERIC, QUOTES_COLUMNS_TO_NUMERIC
+from app.types import RawFinancialData, RawQuotesData
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +189,7 @@ class StockDataProcessor:
         self.calculator = IndicatorCalculator()
 
         # データを保持するインスタンス変数
-        self.df_fins: Optional[pd.DataFrame] = None
+        self.df_fins: Optional[RawFinancialData] = None
         self.code_name_dict: dict = {}
         self.target_date: Optional[datetime.date] = None
         self.analysis_cache: dict[str, StockMetrics] = {}
@@ -256,14 +256,9 @@ class StockDataProcessor:
         self.target_date = date
         date_str = self.file_manager.get_date_string(date)
 
-        # 財務情報を読み込み
+        # 財務情報を読み込み（バリデーション・数値変換を含む）
         fins_path = self.file_manager.base_dir / "temporary" / date_str / "fins_org.csv"
-        self.df_fins = pd.read_csv(fins_path, dtype={"LocalCode": str})
-
-        # 数値カラムを数値型に変換
-        self.df_fins[FINS_COLUMNS_TO_NUMERIC] = self.df_fins[
-            FINS_COLUMNS_TO_NUMERIC
-        ].apply(pd.to_numeric, errors="coerce")
+        self.df_fins = RawFinancialData.from_csv(str(fins_path))
 
         # 銘柄辞書を作成
         self.code_name_dict = self._make_code_company_name_dict(date)
@@ -284,13 +279,10 @@ class StockDataProcessor:
             / f"{code}_{date_short}_quotes.csv"
         )
 
-        df_quotes = pd.read_csv(quotes_path)
-        # 数値カラムを数値型に変換
-        df_quotes[QUOTES_COLUMNS_TO_NUMERIC] = df_quotes[
-            QUOTES_COLUMNS_TO_NUMERIC
-        ].apply(pd.to_numeric, errors="coerce")
+        # 株価データを読み込み（バリデーション・数値変換を含む）
+        quotes_data = RawQuotesData.from_csv(str(quotes_path))
 
-        return df_quotes
+        return quotes_data.df
 
     def _merge_fins_and_stock(self, code: str, df_quotes: pd.DataFrame) -> pd.DataFrame:
         """財務データと株価データをマージ"""
@@ -298,7 +290,7 @@ class StockDataProcessor:
         assert self.df_fins is not None, "財務データが読み込まれていません"
 
         # codeの財務情報だけを抽出（LocalCodeは文字列として比較）
-        df_fins_extracted = self.df_fins[self.df_fins["LocalCode"] == str(code)].copy()
+        df_fins_extracted = self.df_fins.df[self.df_fins.df["LocalCode"] == str(code)].copy()
 
         # 財務データが存在しない場合は株価データをそのまま返す
         if df_fins_extracted.empty:
