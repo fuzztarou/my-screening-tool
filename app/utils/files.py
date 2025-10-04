@@ -3,10 +3,7 @@
 """
 
 import datetime
-from enum import Enum
 from pathlib import Path
-
-import pandas as pd
 
 from app.utils import dates
 
@@ -18,18 +15,6 @@ TEMP_DIR = "temp"
 OUTPUTS_DIR = "outputs"
 FINS_TARGETS_FILE = "fins_targets.csv"
 LISTED_INFO_FILE = "listed_info.csv"
-
-
-# ========================================
-# ENUM
-# ========================================
-class DataType(Enum):
-    """データタイプのENUM"""
-
-    FINS = "fins"
-    IMAGES = "images"
-    LISTED_INFO = "listed_info"
-    QUOTES = "quotes"
 
 
 # ========================================
@@ -132,31 +117,5 @@ class FileManager:
             file_path.write_text(content, encoding="utf-8")
         else:
             file_path.write_bytes(content)
-
-        return file_path
-
-    def save_data(
-        self,
-        df: pd.DataFrame,
-        filename: str,
-        data_type: DataType,
-        date: datetime.date | None = None,
-    ) -> Path:
-        """データファイルを保存(一時保存)
-
-        Args:
-            df: データフレーム
-            filename: ファイル名(拡張子込み)
-            data_type: データタイプ
-            date: 日付(省略時は今日)
-
-        Returns:
-            Path: 保存されたファイルのパス
-        """
-        date_short = self.get_date_string_short(date)
-        file_path = self.base_dir / TEMP_DIR / date_short / data_type.value / filename
-
-        self.ensure_directory_exists(file_path.parent)
-        df.to_csv(file_path, index=False)
 
         return file_path
