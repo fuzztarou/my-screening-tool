@@ -86,8 +86,8 @@ class FileManager:
             / f"{normalized_code}_{date_short}_{data_type}.csv"
         )
 
-    def get_consolidated_fins_path(self, date: datetime.date | None = None) -> Path:
-        """統合財務データファイルのパスを取得"""
+    def get_fins_targets_path(self, date: datetime.date | None = None) -> Path:
+        """対象企業の統合財務データファイルのパスを取得"""
         date_short = self.get_date_string_short(date)
         return self.base_dir / "temporary" / date_short / "fins_targets.csv"
 

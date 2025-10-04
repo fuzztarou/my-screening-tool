@@ -160,7 +160,7 @@ class FinsDataHandler:
                 consolidated_df = pd.concat(consolidated_dfs, ignore_index=True)
 
                 # 統合ファイルを保存
-                consolidated_path = self.file_manager.get_consolidated_fins_path()
+                consolidated_path = self.file_manager.get_fins_targets_path()
                 self.file_manager.ensure_directory_exists(consolidated_path.parent)
                 consolidated_df.to_csv(consolidated_path, index=False)
                 logger.info("統合ファイルを作成しました: %s", consolidated_path)

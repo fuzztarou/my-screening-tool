@@ -277,7 +277,7 @@ class StockDataProcessor:
         self.target_date = date
 
         # 財務情報を読み込み（バリデーション・数値変換を含む）
-        fins_path = self.file_manager.get_consolidated_fins_path(date)
+        fins_path = self.file_manager.get_fins_targets_path(date)
         self.df_fins = RawFinancialData.from_csv(str(fins_path))
 
         # 銘柄辞書を作成
