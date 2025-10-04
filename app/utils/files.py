@@ -57,10 +57,6 @@ class FileManager:
         self.base_dir = Path(base_dir)
         self.today = dates.get_current_jst_date()
 
-    def set_date(self, date: datetime.date) -> None:
-        """作業対象の日付を設定"""
-        self.today = date
-
     def get_date_string(self, date: datetime.date | None = None) -> str:
         """日付を文字列で取得(ISO形式: 2025-10-06)"""
         target_date = date or self.today
@@ -164,63 +160,3 @@ class FileManager:
         df.to_csv(file_path, index=False)
 
         return file_path
-
-    def save_csv(
-        self,
-        df: pd.DataFrame,
-        base_name: str,
-        data_type: DataType,
-        date: datetime.date | None = None,
-    ) -> Path:
-        """CSVファイルとして保存(拡張子自動付与)"""
-        filename = f"{base_name}.csv"
-        return self.save_data(df, filename, data_type, date)
-
-    def save_pdf(
-        self,
-        content: bytes,
-        base_name: str,
-        date: datetime.date | None = None,
-    ) -> Path:
-        """PDFファイルとして保存(拡張子自動付与)"""
-        filename = f"{base_name}.pdf"
-        return self.save_report(content, filename, date)
-
-    def save_png(
-        self,
-        content: bytes,
-        base_name: str,
-        data_type: DataType = DataType.IMAGES,
-        date: datetime.date | None = None,
-    ) -> Path:
-        """PNGファイルとして保存(拡張子自動付与)"""
-        filename = f"{base_name}.png"
-        date_short = self.get_date_string_short(date)
-        file_path = self.base_dir / TEMP_DIR / date_short / data_type.value / filename
-
-        self.ensure_directory_exists(file_path.parent)
-        file_path.write_bytes(content)
-
-        return file_path
-
-    def save_by_stock_code(
-        self,
-        df: pd.DataFrame,
-        stock_code: str,
-        data_type: DataType,
-        date: datetime.date | None = None,
-    ) -> Path:
-        """銘柄コード付きファイルとして保存"""
-        filename = f"{stock_code}_{data_type.value}.csv"
-        return self.save_data(df, filename, data_type, date)
-
-    def save_screening_result(
-        self,
-        df: pd.DataFrame,
-        screening_id: str,
-        data_type: DataType,
-        date: datetime.date | None = None,
-    ) -> Path:
-        """スクリーニング結果ファイルとして保存"""
-        filename = f"screened-{screening_id}_{data_type.value}.csv"
-        return self.save_data(df, filename, data_type, date)
