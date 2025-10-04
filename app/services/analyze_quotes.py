@@ -343,9 +343,9 @@ class StockDataProcessor:
         )
 
         # それでも欠損値がある場合（最初の財務データより前の株価データ）は前方補完
-        df_merged.ffill(inplace=True)
+        df_merged = df_merged.ffill()
         # まだ欠損値がある場合は後方補完
-        df_merged.bfill(inplace=True)
+        df_merged = df_merged.bfill()
 
         return df_merged
 
