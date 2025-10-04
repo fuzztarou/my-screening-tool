@@ -15,6 +15,8 @@ TEMP_DIR = "temp"
 OUTPUTS_DIR = "outputs"
 FINS_TARGETS_FILE = "fins_targets.csv"
 LISTED_INFO_FILE = "listed_info.csv"
+DATA_TYPE_FINS = "fins"
+DATA_TYPE_QUOTES = "quotes"
 
 
 # ========================================

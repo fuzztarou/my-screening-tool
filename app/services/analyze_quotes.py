@@ -13,7 +13,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from app.utils.files import FileManager
+from app.utils.files import DATA_TYPE_QUOTES, FileManager
 from app.types import RawFinancialData, RawQuotesData
 
 logger = logging.getLogger(__name__)
@@ -289,7 +289,7 @@ class StockDataProcessor:
 
         # 株価情報を読み込み
         quotes_path = self.file_manager.get_stock_data_path(
-            code, "quotes", self.target_date
+            code, DATA_TYPE_QUOTES, self.target_date
         )
 
         # 株価データを読み込み（バリデーション・数値変換を含む）

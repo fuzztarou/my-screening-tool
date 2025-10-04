@@ -13,7 +13,7 @@ import pandas as pd
 
 from app.client.jq import create_client
 from app.utils import dates
-from app.utils.files import FileManager
+from app.utils.files import DATA_TYPE_QUOTES, FileManager
 from config.config import config
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ class DailyQuotesDataHandler:
 
     def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
-        csv_path = self.file_manager.get_stock_data_path(normalized_code, "quotes")
+        csv_path = self.file_manager.get_stock_data_path(normalized_code, DATA_TYPE_QUOTES)
         return bool(csv_path.exists())
 
     def _fetch_daily_quotes(self, normalized_code: str) -> pd.DataFrame:
@@ -118,7 +118,7 @@ class DailyQuotesDataHandler:
 
     def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
-        file_path = self.file_manager.get_stock_data_path(normalized_code, "quotes")
+        file_path = self.file_manager.get_stock_data_path(normalized_code, DATA_TYPE_QUOTES)
         self.file_manager.ensure_directory_exists(file_path.parent)
 
         df.to_csv(file_path, index=False)

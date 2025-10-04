@@ -13,7 +13,7 @@ import pandas as pd
 
 from app.client.jq import create_client
 from app.constants import FINS_COLUMNS_TO_EXTRACT
-from app.utils.files import FileManager
+from app.utils.files import DATA_TYPE_FINS, FileManager
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +102,7 @@ class FinsDataHandler:
 
     def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
-        csv_path = self.file_manager.get_stock_data_path(normalized_code, "fins")
+        csv_path = self.file_manager.get_stock_data_path(normalized_code, DATA_TYPE_FINS)
         return bool(csv_path.exists())
 
     def _fetch_financial_data(self, normalized_code: str) -> pd.DataFrame:
@@ -127,7 +127,7 @@ class FinsDataHandler:
 
     def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
-        file_path = self.file_manager.get_stock_data_path(normalized_code, "fins")
+        file_path = self.file_manager.get_stock_data_path(normalized_code, DATA_TYPE_FINS)
         self.file_manager.ensure_directory_exists(file_path.parent)
 
         df.to_csv(file_path, index=False)
@@ -144,7 +144,7 @@ class FinsDataHandler:
 
             # 各証券コードのファイルを読み込み
             for normalized_code in normalized_codes:
-                csv_path = self.file_manager.get_stock_data_path(normalized_code, "fins")
+                csv_path = self.file_manager.get_stock_data_path(normalized_code, DATA_TYPE_FINS)
                 if csv_path.exists():
                     try:
                         df = pd.read_csv(
