@@ -94,12 +94,13 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
-    def create_pbr_psr_chart(self, ax: Axes, df: pd.DataFrame) -> None:
-        """PBR, PSR指標チャートを作成"""
+    def create_pbr_psr_peg_chart(self, ax: Axes, df: pd.DataFrame) -> None:
+        """PBR, PSR, PEG指標チャートを作成"""
         self.plotter.plot_pbr(ax, df)
         self.plotter.plot_psr(ax, df)
+        self.plotter.plot_peg_ratio(ax, df)
 
-        ax.set_title("Financial Indicators (PBR, PSR)", fontsize=10, fontweight="bold")
+        ax.set_title("Financial Indicators (PBR, PSR, PEG)", fontsize=10, fontweight="bold")
         ax.set_ylabel("Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
@@ -136,6 +137,16 @@ class ChartCreator:
 
         ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Net Profit (100M JPY)", fontsize=9)
+        ax.legend(loc="upper left", fontsize=8)
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
+
+    def create_peg_chart(self, ax: Axes, df: pd.DataFrame) -> None:
+        """PEG Ratioチャートを作成"""
+        self.plotter.plot_peg_ratio(ax, df)
+
+        ax.set_title("PEG Ratio", fontsize=10, fontweight="bold")
+        ax.set_ylabel("PEG Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
