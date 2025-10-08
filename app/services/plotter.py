@@ -188,3 +188,20 @@ class Plotter:
             linestyle="--",
             linewidth=1,
         )
+
+    def plot_peg_ratio(self, ax: Axes, df: pd.DataFrame) -> None:
+        """PEG Ratioをプロット（NaN値をスキップ）"""
+        # NaN値を除外
+        df_valid = df[df["PEG"].notna()].copy()
+        if not df_valid.empty:
+            ax.plot(df_valid["Date"], df_valid["PEG"], label="PEG Ratio", color="red", linewidth=1.5)
+
+    def plot_operating_profit_growth_rate(self, ax: Axes, df: pd.DataFrame) -> None:
+        """営業利益成長率をプロット"""
+        ax.plot(
+            df["Date"],
+            df["OperatingProfitGrowthRate"],
+            label="Op. Profit Growth(%)",
+            color="darkgreen",
+            linewidth=1.5,
+        )
