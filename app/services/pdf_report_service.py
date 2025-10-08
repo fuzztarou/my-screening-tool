@@ -70,7 +70,7 @@ class PdfReportService:
                 self.chart_creator.create_per_roe_roa_chart(ax2, df)
 
                 ax3 = plt.subplot2grid((4, 2), (1, 1))
-                self.chart_creator.create_pbr_psr_chart(ax3, df)
+                self.chart_creator.create_pbr_psr_peg_chart(ax3, df)
 
                 # 3行目: 左に売上チャート、右に営業利益チャート
                 ax4 = plt.subplot2grid((4, 2), (2, 0))
