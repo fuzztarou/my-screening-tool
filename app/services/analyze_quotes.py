@@ -39,6 +39,7 @@ class IndicatorCalculator:
         df = self._set_AdjustmentBPS_value(df)
         df = self._set_PER_value(df)
         df = self._set_PBR_value(df)
+        df = self._set_PSR_value(df)
         df = self._set_ROE_value(df)
         df = self._set_ROA_value(df)
         df = self._set_market_cap(df)
@@ -59,7 +60,7 @@ class IndicatorCalculator:
 
     def _get_latest_average_shares(self, df: pd.DataFrame) -> float:
         """最新の期中平均株式数を取得"""
-        return df["AverageNumberOfShares"].iloc[-1]
+        return float(df["AverageNumberOfShares"].iloc[-1])
 
     def _set_AdjustmentBPS_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """最新の[期中平均株式数]で値を計算"""
@@ -77,6 +78,15 @@ class IndicatorCalculator:
         """PBR値を計算(株式分割されると値がジャンプするので最新の発行済株数で計算)"""
         df["PBR"] = df["AdjustmentClose"] / (
             df["Equity"] / self._get_latest_average_shares(df)
+        )
+        return df
+
+    def _set_PSR_value(self, df: pd.DataFrame) -> pd.DataFrame:
+        """PSR値を計算(株式分割されると値がジャンプするので最新の発行済株数で計算)"""
+        df["PSR"] = (
+            df["AdjustmentClose"]
+            * self._get_latest_average_shares(df)
+            / df["ForecastNetSales"]
         )
         return df
 
