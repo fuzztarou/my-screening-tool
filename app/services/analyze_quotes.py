@@ -42,6 +42,8 @@ class IndicatorCalculator:
         df = self._set_PSR_value(df)
         df = self._set_ROE_value(df)
         df = self._set_ROA_value(df)
+        df = self._set_operating_profit_growth_rate(df)
+        df = self._set_PEG_ratio(df)
         df = self._set_market_cap(df)
         df = self._set_smoothed_volume(df)
         df = self._set_200days_moving_average(df)
@@ -98,6 +100,59 @@ class IndicatorCalculator:
     def _set_ROA_value(self, df: pd.DataFrame) -> pd.DataFrame:
         """ROAを計算(割っただけの値)"""
         df["ROA"] = df["ForecastProfit"] / df["TotalAssets"]
+        return df
+
+    def _set_operating_profit_growth_rate(self, df: pd.DataFrame) -> pd.DataFrame:
+        """営業利益成長率を計算（前年比、連結本決算優先、非連結本決算をフォールバック）"""
+        # TypeOfDocumentがFYFinancialStatements_Consolidated_JPのデータを優先使用
+        df_fy_consolidated = df[df["TypeOfDocument"] == "FYFinancialStatements_Consolidated_JP"].copy()
+
+        # 連結データがない場合は非連結データを使用
+        if len(df_fy_consolidated) == 0:
+            df_fy_consolidated = df[df["TypeOfDocument"] == "FYFinancialStatements_NonConsolidated_JP"].copy()
+
+        if len(df_fy_consolidated) > 0:
+            # 日付でソートして連続性を確保
+            df_fy_consolidated = df_fy_consolidated.sort_values("Date")
+
+            # DisclosedDateごとにグループ化して、最新のForecastOperatingProfitを取得
+            df_fy_unique = df_fy_consolidated.drop_duplicates(subset=["DisclosedDate"], keep="last")
+
+            # 成長率を計算
+            df_fy_unique = df_fy_unique.sort_values("DisclosedDate")
+            df_fy_unique["OperatingProfitGrowthRate"] = df_fy_unique["ForecastOperatingProfit"].pct_change() * 100
+
+            # DisclosedDateをキーにして全行にブロードキャスト
+            df = df.merge(
+                df_fy_unique[["DisclosedDate", "OperatingProfitGrowthRate"]],
+                on="DisclosedDate",
+                how="left",
+                suffixes=("", "_fy")
+            )
+
+            # 列名を調整
+            if "OperatingProfitGrowthRate_fy" in df.columns:
+                df["OperatingProfitGrowthRate"] = df["OperatingProfitGrowthRate_fy"]
+                df = df.drop(columns=["OperatingProfitGrowthRate_fy"])
+            elif "OperatingProfitGrowthRate" not in df.columns:
+                df["OperatingProfitGrowthRate"] = np.nan
+
+            # 欠損値を前方補完（過去の最新の値を使用）
+            df["OperatingProfitGrowthRate"] = df["OperatingProfitGrowthRate"].ffill()
+        else:
+            logger.warning("No FY data found (Consolidated or NonConsolidated), setting OperatingProfitGrowthRate to NaN")
+            df["OperatingProfitGrowthRate"] = np.nan
+
+        return df
+
+    def _set_PEG_ratio(self, df: pd.DataFrame) -> pd.DataFrame:
+        """PEG Ratioを計算（営業利益ベース）"""
+        # 成長率が0または負の場合はNaN
+        df["PEG"] = np.where(
+            df["OperatingProfitGrowthRate"] > 0,
+            df["PER"] / df["OperatingProfitGrowthRate"],
+            np.nan
+        )
         return df
 
     def _set_market_cap(self, df: pd.DataFrame) -> pd.DataFrame:
