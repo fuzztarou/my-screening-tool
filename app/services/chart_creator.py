@@ -82,14 +82,24 @@ class ChartCreator:
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
-    def create_indicators_chart(self, ax: Axes, df: pd.DataFrame) -> None:
-        """指標チャートを作成"""
+    def create_per_roe_roa_chart(self, ax: Axes, df: pd.DataFrame) -> None:
+        """PER, ROE, ROA指標チャートを作成"""
         self.plotter.plot_per(ax, df)
-        self.plotter.plot_pbr(ax, df)
         self.plotter.plot_roe(ax, df)
         self.plotter.plot_roa(ax, df)
 
-        ax.set_title("Financial Indicators", fontsize=10, fontweight="bold")
+        ax.set_title("Financial Indicators (PER, ROE, ROA)", fontsize=10, fontweight="bold")
+        ax.set_ylabel("Ratio", fontsize=9)
+        ax.legend(loc="upper left", fontsize=8)
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
+
+    def create_pbr_psr_chart(self, ax: Axes, df: pd.DataFrame) -> None:
+        """PBR, PSR指標チャートを作成"""
+        self.plotter.plot_pbr(ax, df)
+        self.plotter.plot_psr(ax, df)
+
+        ax.set_title("Financial Indicators (PBR, PSR)", fontsize=10, fontweight="bold")
         ax.set_ylabel("Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
