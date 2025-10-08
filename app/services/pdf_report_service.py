@@ -65,20 +65,23 @@ class PdfReportService:
                 ax1 = plt.subplot2grid((4, 2), (0, 0), colspan=2)
                 self.chart_creator.create_price_chart_with_volume(ax1, df)
 
-                # 2行目: 指標チャート
-                ax2 = plt.subplot2grid((4, 2), (1, 0), colspan=2)
-                self.chart_creator.create_indicators_chart(ax2, df)
+                # 2行目: 左にPER/ROE/ROA、右にPBR/PSR
+                ax2 = plt.subplot2grid((4, 2), (1, 0))
+                self.chart_creator.create_per_roe_roa_chart(ax2, df)
+
+                ax3 = plt.subplot2grid((4, 2), (1, 1))
+                self.chart_creator.create_pbr_psr_chart(ax3, df)
 
                 # 3行目: 左に売上チャート、右に営業利益チャート
-                ax3 = plt.subplot2grid((4, 2), (2, 0))
-                self.chart_creator.create_sales_chart(ax3, stock_metrics)
+                ax4 = plt.subplot2grid((4, 2), (2, 0))
+                self.chart_creator.create_sales_chart(ax4, stock_metrics)
 
-                ax4 = plt.subplot2grid((4, 2), (2, 1))
-                self.chart_creator.create_operation_profit_chart(ax4, stock_metrics)
+                ax5 = plt.subplot2grid((4, 2), (2, 1))
+                self.chart_creator.create_operation_profit_chart(ax5, stock_metrics)
 
                 # 4行目: 左に当期利益チャート、右は空欄
-                ax5 = plt.subplot2grid((4, 2), (3, 0))
-                self.chart_creator.create_profit_chart(ax5, stock_metrics)
+                ax6 = plt.subplot2grid((4, 2), (3, 0))
+                self.chart_creator.create_profit_chart(ax6, stock_metrics)
 
                 # レイアウトを調整
                 plt.tight_layout(rect=(0, 0, 1, 0.95))
