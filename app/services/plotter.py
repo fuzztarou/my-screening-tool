@@ -168,6 +168,10 @@ class Plotter:
         """PBRをプロット"""
         ax.plot(df["Date"], df["PBR"], label="PBR", color="green", linewidth=1.5)
 
+    def plot_psr(self, ax: Axes, df: pd.DataFrame) -> None:
+        """PSRをプロット"""
+        ax.plot(df["Date"], df["PSR"], label="PSR", color="purple", linewidth=1.5)
+
     def plot_roe(self, ax: Axes, df: pd.DataFrame) -> None:
         """ROEをプロット"""
         ax.plot(
