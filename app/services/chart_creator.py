@@ -88,7 +88,9 @@ class ChartCreator:
         self.plotter.plot_roe(ax, df)
         self.plotter.plot_roa(ax, df)
 
-        ax.set_title("Financial Indicators (PER, ROE, ROA)", fontsize=10, fontweight="bold")
+        ax.set_title(
+            "Financial Indicators (PER, ROE, ROA)", fontsize=10, fontweight="bold"
+        )
         ax.set_ylabel("Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
@@ -100,7 +102,9 @@ class ChartCreator:
         self.plotter.plot_psr(ax, df)
         self.plotter.plot_peg_ratio(ax, df)
 
-        ax.set_title("Financial Indicators (PBR, PSR, PEG)", fontsize=10, fontweight="bold")
+        ax.set_title(
+            "Financial Indicators (PBR, PSR, PEG)", fontsize=10, fontweight="bold"
+        )
         ax.set_ylabel("Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
@@ -120,50 +124,26 @@ class ChartCreator:
     def create_operation_profit_chart(
         self, ax: Axes, stock_metrics: StockMetrics
     ) -> None:
-        """営業利益チャートを作成（営業利益率を右軸に追加）"""
+        """営業利益チャートを作成"""
         df = stock_metrics.df_result.copy()
-        # 営業利益をプロット（左軸）
+        # 営業利益をプロット
         self.plotter.plot_operating_profit(ax, df)
 
-        # 右側に営業利益率用のY軸を作成
-        ax2 = ax.twinx()
-
-        # 営業利益率をプロット（右軸）
-        self.plotter.plot_operating_margin(ax2, df)  # type: ignore
-
-        ax.set_title("Operating Profit & Margin Trend", fontsize=10, fontweight="bold")
+        ax.set_title("Operating Profit Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Operating Profit (100M JPY)", fontsize=9)
-        ax2.set_ylabel("Operating Margin (%)", fontsize=9)  # type: ignore
-
-        # 凡例を結合
-        lines1, labels1 = ax.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()  # type: ignore
-        ax.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=8)
-
+        ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_profit_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
-        """利益チャートを作成（純利益率を右軸に追加）"""
+        """純利益チャートを作成"""
         df = stock_metrics.df_result.copy()
-        # 純利益をプロット（左軸）
+        # 純利益をプロット
         self.plotter.plot_net_profit(ax, df)
 
-        # 右側に純利益率用のY軸を作成
-        ax2 = ax.twinx()
-
-        # 純利益率をプロット（右軸）
-        self.plotter.plot_net_margin(ax2, df)  # type: ignore
-
-        ax.set_title("Net Profit & Margin Trend", fontsize=10, fontweight="bold")
+        ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Net Profit (100M JPY)", fontsize=9)
-        ax2.set_ylabel("Net Margin (%)", fontsize=9)  # type: ignore
-
-        # 凡例を結合
-        lines1, labels1 = ax.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()  # type: ignore
-        ax.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=8)
-
+        ax.legend(loc="upper left", fontsize=8)
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
@@ -174,5 +154,21 @@ class ChartCreator:
         ax.set_title("PEG Ratio", fontsize=10, fontweight="bold")
         ax.set_ylabel("PEG Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
+        ax.grid(True, alpha=0.3)
+        self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
+
+    def create_margin_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
+        """営業利益率と純利益率のチャートを作成"""
+        df = stock_metrics.df_result.copy()
+
+        # 営業利益率をプロット
+        self.plotter.plot_operating_margin(ax, df)
+
+        # 純利益率をプロット
+        self.plotter.plot_net_margin(ax, df)
+
+        ax.set_title("Operating & Net Margin Trend", fontsize=10, fontweight="bold")
+        ax.set_ylabel("Margin (%)", fontsize=9)
+        ax.legend(loc="upper left", fontsize=6)
         ax.grid(True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
