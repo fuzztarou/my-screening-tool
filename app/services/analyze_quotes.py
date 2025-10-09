@@ -107,29 +107,37 @@ class IndicatorCalculator:
     def _set_operating_profit_growth_rate(self, df: pd.DataFrame) -> pd.DataFrame:
         """営業利益成長率を計算（前年比、連結本決算優先、非連結本決算をフォールバック）"""
         # TypeOfDocumentがFYFinancialStatements_Consolidated_JPのデータを優先使用
-        df_fy_consolidated = df[df["TypeOfDocument"] == "FYFinancialStatements_Consolidated_JP"].copy()
+        df_fy_consolidated = df[
+            df["TypeOfDocument"] == "FYFinancialStatements_Consolidated_JP"
+        ].copy()
 
         # 連結データがない場合は非連結データを使用
         if len(df_fy_consolidated) == 0:
-            df_fy_consolidated = df[df["TypeOfDocument"] == "FYFinancialStatements_NonConsolidated_JP"].copy()
+            df_fy_consolidated = df[
+                df["TypeOfDocument"] == "FYFinancialStatements_NonConsolidated_JP"
+            ].copy()
 
         if len(df_fy_consolidated) > 0:
             # 日付でソートして連続性を確保
             df_fy_consolidated = df_fy_consolidated.sort_values("Date")
 
             # DisclosedDateごとにグループ化して、最新のForecastOperatingProfitを取得
-            df_fy_unique = df_fy_consolidated.drop_duplicates(subset=["DisclosedDate"], keep="last")
+            df_fy_unique = df_fy_consolidated.drop_duplicates(
+                subset=["DisclosedDate"], keep="last"
+            )
 
             # 成長率を計算
             df_fy_unique = df_fy_unique.sort_values("DisclosedDate")
-            df_fy_unique["OperatingProfitGrowthRate"] = df_fy_unique["ForecastOperatingProfit"].pct_change() * 100
+            df_fy_unique["OperatingProfitGrowthRate"] = (
+                df_fy_unique["ForecastOperatingProfit"].pct_change() * 100
+            )
 
             # DisclosedDateをキーにして全行にブロードキャスト
             df = df.merge(
                 df_fy_unique[["DisclosedDate", "OperatingProfitGrowthRate"]],
                 on="DisclosedDate",
                 how="left",
-                suffixes=("", "_fy")
+                suffixes=("", "_fy"),
             )
 
             # 列名を調整
@@ -142,7 +150,9 @@ class IndicatorCalculator:
             # 欠損値を前方補完（過去の最新の値を使用）
             df["OperatingProfitGrowthRate"] = df["OperatingProfitGrowthRate"].ffill()
         else:
-            logger.warning("No FY data found (Consolidated or NonConsolidated), setting OperatingProfitGrowthRate to NaN")
+            logger.warning(
+                "No FY data found (Consolidated or NonConsolidated), setting OperatingProfitGrowthRate to NaN"
+            )
             df["OperatingProfitGrowthRate"] = np.nan
 
         return df
@@ -153,7 +163,7 @@ class IndicatorCalculator:
         df["PEG"] = np.where(
             df["OperatingProfitGrowthRate"] > 0,
             df["PER"] / df["OperatingProfitGrowthRate"],
-            np.nan
+            np.nan,
         )
         return df
 
@@ -161,12 +171,9 @@ class IndicatorCalculator:
         """営業利益率を計算（実績と予想、パーセント表示）- DisclosedDate変更時のみ値を保持"""
         # 営業利益率を計算
         df["OperatingMargin"] = (df["OperatingProfit"] / df["NetSales"]) * 100
-        df["ForecastOperatingMargin"] = (df["ForecastOperatingProfit"] / df["ForecastNetSales"]) * 100
-
-        # DisclosedDateが変わったポイント以外はNaNにする
-        disclosed_date_changed = df["DisclosedDate"] != df["DisclosedDate"].shift(1)
-        df.loc[~disclosed_date_changed, "OperatingMargin"] = np.nan
-        df.loc[~disclosed_date_changed, "ForecastOperatingMargin"] = np.nan
+        df["ForecastOperatingMargin"] = (
+            df["ForecastOperatingProfit"] / df["ForecastNetSales"]
+        ) * 100
 
         return df
 
@@ -175,11 +182,6 @@ class IndicatorCalculator:
         # 純利益率を計算
         df["NetMargin"] = (df["Profit"] / df["NetSales"]) * 100
         df["ForecastNetMargin"] = (df["ForecastProfit"] / df["ForecastNetSales"]) * 100
-
-        # DisclosedDateが変わったポイント以外はNaNにする
-        disclosed_date_changed = df["DisclosedDate"] != df["DisclosedDate"].shift(1)
-        df.loc[~disclosed_date_changed, "NetMargin"] = np.nan
-        df.loc[~disclosed_date_changed, "ForecastNetMargin"] = np.nan
 
         return df
 
