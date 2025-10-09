@@ -79,9 +79,12 @@ class PdfReportService:
                 ax5 = plt.subplot2grid((4, 2), (2, 1))
                 self.chart_creator.create_operation_profit_chart(ax5, stock_metrics)
 
-                # 4行目: 左に当期利益チャート、右は空欄
+                # 4行目: 左に当期利益チャート、右にマージンチャート
                 ax6 = plt.subplot2grid((4, 2), (3, 0))
                 self.chart_creator.create_profit_chart(ax6, stock_metrics)
+
+                ax7 = plt.subplot2grid((4, 2), (3, 1))
+                self.chart_creator.create_margin_chart(ax7, stock_metrics)
 
                 # レイアウトを調整
                 plt.tight_layout(rect=(0, 0, 1, 0.95))
