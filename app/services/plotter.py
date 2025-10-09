@@ -194,7 +194,13 @@ class Plotter:
         # NaN値を除外
         df_valid = df[df["PEG"].notna()].copy()
         if not df_valid.empty:
-            ax.plot(df_valid["Date"], df_valid["PEG"], label="PEG Ratio", color="red", linewidth=1.5)
+            ax.plot(
+                df_valid["Date"],
+                df_valid["PEG"],
+                label="PEG Ratio",
+                color="red",
+                linewidth=1.5,
+            )
 
     def plot_operating_profit_growth_rate(self, ax: Axes, df: pd.DataFrame) -> None:
         """営業利益成長率をプロット"""
@@ -204,4 +210,56 @@ class Plotter:
             label="Op. Profit Growth(%)",
             color="darkgreen",
             linewidth=1.5,
+        )
+
+    def plot_operating_margin(self, ax: Axes, df: pd.DataFrame) -> None:
+        """営業利益率をプロット（実績と予想）- 小さい点のみ"""
+        # 実績営業利益率
+        ax.scatter(
+            df["Date"],
+            df["OperatingMargin"],
+            label="Operating Margin (Actual)",
+            marker="o",
+            s=5,
+            color="darkgreen",
+            zorder=3,
+        )
+
+        # 予想営業利益率（白抜き）
+        ax.scatter(
+            df["Date"],
+            df["ForecastOperatingMargin"],
+            label="Operating Margin (Forecast)",
+            marker="o",
+            s=5,
+            facecolors="none",
+            edgecolors="red",
+            linewidths=1,
+            zorder=3,
+        )
+
+    def plot_net_margin(self, ax: Axes, df: pd.DataFrame) -> None:
+        """純利益率をプロット（実績と予想）- 小さい点のみ"""
+        # 実績純利益率
+        ax.scatter(
+            df["Date"],
+            df["NetMargin"],
+            label="Net Margin (Actual)",
+            marker="o",
+            s=5,
+            color="darkblue",
+            zorder=3,
+        )
+
+        # 予想純利益率（白抜き）
+        ax.scatter(
+            df["Date"],
+            df["ForecastNetMargin"],
+            label="Net Margin (Forecast)",
+            marker="o",
+            s=5,
+            facecolors="none",
+            edgecolors="red",
+            linewidths=1,
+            zorder=3,
         )
