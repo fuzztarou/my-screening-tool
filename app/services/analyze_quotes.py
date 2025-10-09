@@ -44,6 +44,8 @@ class IndicatorCalculator:
         df = self._set_ROA_value(df)
         df = self._set_operating_profit_growth_rate(df)
         df = self._set_PEG_ratio(df)
+        df = self._set_operating_margin(df)
+        df = self._set_net_margin(df)
         df = self._set_market_cap(df)
         df = self._set_smoothed_volume(df)
         df = self._set_200days_moving_average(df)
@@ -153,6 +155,32 @@ class IndicatorCalculator:
             df["PER"] / df["OperatingProfitGrowthRate"],
             np.nan
         )
+        return df
+
+    def _set_operating_margin(self, df: pd.DataFrame) -> pd.DataFrame:
+        """営業利益率を計算（実績と予想、パーセント表示）- DisclosedDate変更時のみ値を保持"""
+        # 営業利益率を計算
+        df["OperatingMargin"] = (df["OperatingProfit"] / df["NetSales"]) * 100
+        df["ForecastOperatingMargin"] = (df["ForecastOperatingProfit"] / df["ForecastNetSales"]) * 100
+
+        # DisclosedDateが変わったポイント以外はNaNにする
+        disclosed_date_changed = df["DisclosedDate"] != df["DisclosedDate"].shift(1)
+        df.loc[~disclosed_date_changed, "OperatingMargin"] = np.nan
+        df.loc[~disclosed_date_changed, "ForecastOperatingMargin"] = np.nan
+
+        return df
+
+    def _set_net_margin(self, df: pd.DataFrame) -> pd.DataFrame:
+        """純利益率を計算（実績と予想、パーセント表示）- DisclosedDate変更時のみ値を保持"""
+        # 純利益率を計算
+        df["NetMargin"] = (df["Profit"] / df["NetSales"]) * 100
+        df["ForecastNetMargin"] = (df["ForecastProfit"] / df["ForecastNetSales"]) * 100
+
+        # DisclosedDateが変わったポイント以外はNaNにする
+        disclosed_date_changed = df["DisclosedDate"] != df["DisclosedDate"].shift(1)
+        df.loc[~disclosed_date_changed, "NetMargin"] = np.nan
+        df.loc[~disclosed_date_changed, "ForecastNetMargin"] = np.nan
+
         return df
 
     def _set_market_cap(self, df: pd.DataFrame) -> pd.DataFrame:
