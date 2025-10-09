@@ -213,53 +213,45 @@ class Plotter:
         )
 
     def plot_operating_margin(self, ax: Axes, df: pd.DataFrame) -> None:
-        """営業利益率をプロット（実績と予想）- 小さい点のみ"""
+        """営業利益率をプロット（実績と予想）"""
         # 実績営業利益率
-        ax.scatter(
+        ax.plot(
             df["Date"],
             df["OperatingMargin"],
             label="Operating Margin (Actual)",
-            marker="o",
-            s=5,
+            linewidth=1.5,
             color="darkgreen",
-            zorder=3,
         )
 
-        # 予想営業利益率（白抜き）
-        ax.scatter(
+        # 予想営業利益率
+        ax.plot(
             df["Date"],
             df["ForecastOperatingMargin"],
             label="Operating Margin (Forecast)",
-            marker="o",
-            s=5,
-            facecolors="none",
-            edgecolors="red",
-            linewidths=1,
-            zorder=3,
+            linestyle="--",
+            linewidth=1.5,
+            color="red",
+            alpha=0.7,
         )
 
     def plot_net_margin(self, ax: Axes, df: pd.DataFrame) -> None:
-        """純利益率をプロット（実績と予想）- 小さい点のみ"""
+        """純利益率をプロット（実績と予想）"""
         # 実績純利益率
-        ax.scatter(
+        ax.plot(
             df["Date"],
             df["NetMargin"],
             label="Net Margin (Actual)",
-            marker="o",
-            s=5,
+            linewidth=1.5,
             color="darkblue",
-            zorder=3,
         )
 
-        # 予想純利益率（白抜き）
-        ax.scatter(
+        # 予想純利益率
+        ax.plot(
             df["Date"],
             df["ForecastNetMargin"],
             label="Net Margin (Forecast)",
-            marker="o",
-            s=5,
-            facecolors="none",
-            edgecolors="red",
-            linewidths=1,
-            zorder=3,
+            linestyle="--",
+            linewidth=1.5,
+            color="red",
+            alpha=0.7,
         )
