@@ -6,11 +6,11 @@
 
 import logging
 from typing import Optional
-from matplotlib.axes import Axes
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib.axes import Axes
 
 from app.services.analyze_quotes import StockMetrics
 from app.services.plotter import Plotter
