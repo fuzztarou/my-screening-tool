@@ -36,15 +36,6 @@ class Plotter:
             linewidth=1,
             color="blue",
         )
-        # ax.plot(
-        #     df["Date"],
-        #     df["SMA_200"],
-        #     label="price 200-day MA",
-        #     linestyle="--",
-        #     alpha=0.7,
-        #     linewidth=1,
-        #     color="blue",
-        # )
 
     def plot_volume_bars(self, ax: Axes, df: pd.DataFrame, alpha: float = 0.6) -> None:
         """出来高のバーと移動平均線をプロット"""
@@ -74,7 +65,7 @@ class Plotter:
         )
 
     def plot_sales(self, ax: Axes, df: pd.DataFrame) -> None:
-        """売上高をプロット（実績と予想）"""
+        """売上高をプロット (実績と予想)"""
         # 売上高データを億円単位に変換
         df = df.copy()
         df["NetSales_100M"] = df["NetSales"] / 1e8
@@ -103,7 +94,7 @@ class Plotter:
         )
 
     def plot_operating_profit(self, ax: Axes, df: pd.DataFrame) -> None:
-        """営業利益をプロット（実績と予想）"""
+        """営業利益をプロット (実績と予想)"""
         # 営業利益データを億円単位に変換
         df = df.copy()
         df["OperatingProfit_100M"] = df["OperatingProfit"] / 1e8
@@ -132,7 +123,7 @@ class Plotter:
         )
 
     def plot_net_profit(self, ax: Axes, df: pd.DataFrame) -> None:
-        """純利益をプロット（実績と予想）"""
+        """純利益をプロット (実績と予想)"""
         # 利益データを億円単位に変換
         df = df.copy()
         df["Profit_100M"] = df["Profit"] / 1e8
@@ -190,7 +181,7 @@ class Plotter:
         )
 
     def plot_peg_ratio(self, ax: Axes, df: pd.DataFrame) -> None:
-        """PEG Ratioをプロット（NaN値をスキップ）"""
+        """PEG Ratioをプロット (NaN値をスキップ)"""
         # NaN値を除外
         df_valid = df[df["PEG"].notna()].copy()
         if not df_valid.empty:
@@ -213,8 +204,7 @@ class Plotter:
         )
 
     def plot_operating_margin(self, ax: Axes, df: pd.DataFrame) -> None:
-        """営業利益率をプロット（実績と予想）"""
-        # 実績営業利益率
+        """営業利益率(実績)をプロット"""
         ax.plot(
             df["Date"],
             df["OperatingMargin"],
@@ -223,7 +213,8 @@ class Plotter:
             color="darkgreen",
         )
 
-        # 予想営業利益率
+    def plot_forecast_operating_margin(self, ax: Axes, df: pd.DataFrame) -> None:
+        """営業利益率(予想)をプロット"""
         ax.plot(
             df["Date"],
             df["ForecastOperatingMargin"],
@@ -235,8 +226,7 @@ class Plotter:
         )
 
     def plot_net_margin(self, ax: Axes, df: pd.DataFrame) -> None:
-        """純利益率をプロット（実績と予想）"""
-        # 実績純利益率
+        """純利益率(実績)をプロット"""
         ax.plot(
             df["Date"],
             df["NetMargin"],
@@ -245,7 +235,8 @@ class Plotter:
             color="darkblue",
         )
 
-        # 予想純利益率
+    def plot_forecast_net_margin(self, ax: Axes, df: pd.DataFrame) -> None:
+        """純利益率(予想)をプロット"""
         ax.plot(
             df["Date"],
             df["ForecastNetMargin"],

@@ -163,9 +163,11 @@ class ChartCreator:
 
         # 営業利益率をプロット
         self.plotter.plot_operating_margin(ax, df)
+        self.plotter.plot_forecast_operating_margin(ax, df)
 
         # 純利益率をプロット
         self.plotter.plot_net_margin(ax, df)
+        self.plotter.plot_forecast_net_margin(ax, df)
 
         ax.set_title("Operating & Net Margin Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Margin (%)", fontsize=9)
