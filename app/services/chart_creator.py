@@ -5,7 +5,6 @@
 """
 
 import logging
-from typing import Optional
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -29,7 +28,7 @@ class ChartCreator:
         ax: Axes,
         minticks: int = 3,
         maxticks: int = 8,
-        fontsize: Optional[int] = None,
+        fontsize: int | None = None,
     ) -> None:
         """X軸の共通設定を適用"""
         ax.xaxis.set_major_locator(
