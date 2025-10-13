@@ -67,7 +67,7 @@ class ChartCreator:
         # 右側に出来高チャート用のY軸を作成
         ax2 = ax.twinx()
 
-        # 出来高をプロット（右軸、透明度を下げて株価を見やすくする）
+        # 出来高をプロット【右軸、透明度を下げて株価を見やすくする】
         self.plotter.plot_volume_bars(ax2, df, alpha=0.3)  # type: ignore
 
         ax.set_title("Stock Price & Volume Trend", fontsize=10, fontweight="bold")
