@@ -45,7 +45,7 @@ class ChartCreator:
         ax.set_title("Stock Price Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Price (JPY)", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_volume_chart(self, ax: Axes, df: pd.DataFrame) -> None:
@@ -55,7 +55,7 @@ class ChartCreator:
         ax.set_title("Volume Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Volume (10K)", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_price_chart_with_volume(self, ax: Axes, df: pd.DataFrame) -> None:
@@ -78,7 +78,7 @@ class ChartCreator:
         lines2, labels2 = ax2.get_legend_handles_labels()  # type: ignore
         ax.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=8)
 
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_per_roe_roa_chart(self, ax: Axes, df: pd.DataFrame) -> None:
@@ -92,7 +92,7 @@ class ChartCreator:
         )
         ax.set_ylabel("Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_pbr_psr_peg_chart(self, ax: Axes, df: pd.DataFrame) -> None:
@@ -106,7 +106,7 @@ class ChartCreator:
         )
         ax.set_ylabel("Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_sales_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
@@ -117,7 +117,7 @@ class ChartCreator:
         ax.set_title("Net Sales Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Net Sales (100M JPY)", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_operation_profit_chart(
@@ -131,7 +131,7 @@ class ChartCreator:
         ax.set_title("Operating Profit Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Operating Profit (100M JPY)", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_profit_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
@@ -143,7 +143,7 @@ class ChartCreator:
         ax.set_title("Net Profit Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Net Profit (100M JPY)", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_peg_chart(self, ax: Axes, df: pd.DataFrame) -> None:
@@ -153,7 +153,7 @@ class ChartCreator:
         ax.set_title("PEG Ratio", fontsize=10, fontweight="bold")
         ax.set_ylabel("PEG Ratio", fontsize=9)
         ax.legend(loc="upper left", fontsize=8)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_margin_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
@@ -171,5 +171,5 @@ class ChartCreator:
         ax.set_title("Operating & Net Margin Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Margin (%)", fontsize=9)
         ax.legend(loc="upper left", fontsize=6)
-        ax.grid(True, alpha=0.3)
+        ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
