@@ -64,18 +64,18 @@ class ChartCreator:
         self.plotter.plot_price_lines(ax, df)
 
         # 右側に出来高チャート用のY軸を作成
-        ax2 = ax.twinx()
+        ax2: Axes = ax.twinx()  # type: ignore[assignment]
 
         # 出来高をプロット【右軸、透明度を下げて株価を見やすくする】
-        self.plotter.plot_volume_bars(ax2, df, alpha=0.3)  # type: ignore
+        self.plotter.plot_volume_bars(ax2, df, alpha=0.3)
 
         ax.set_title("Stock Price & Volume Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Price (JPY)", fontsize=9)
-        ax2.set_ylabel("Volume (10K)", fontsize=9)  # type: ignore
+        ax2.set_ylabel("Volume (10K)", fontsize=9)
 
         # 凡例を結合
         lines1, labels1 = ax.get_legend_handles_labels()
-        lines2, labels2 = ax2.get_legend_handles_labels()  # type: ignore
+        lines2, labels2 = ax2.get_legend_handles_labels()
         ax.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=8)
 
         ax.grid(visible=True, alpha=0.3)
