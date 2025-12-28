@@ -29,12 +29,19 @@ class PdfReportService:
 
     def _setup_matplotlib(self) -> None:
         """matplotlibの設定"""
+        # fonttools の詳細ログを抑制
+        logging.getLogger("fontTools").setLevel(logging.ERROR)
         plt.rcParams["font.family"] = "sans-serif"
         plt.rcParams["font.sans-serif"] = [
+            "Hiragino Sans",
+            "Hiragino Kaku Gothic Pro",
+            "Yu Gothic",
             "DejaVu Sans",
             "Arial",
             "sans-serif",
         ]
+        # PDF出力時にTrueTypeフォントを使用（日本語文字の埋め込み用）
+        plt.rcParams["pdf.fonttype"] = 42
 
     def create_comprehensive_report(self, stock_metrics: StockMetrics) -> Path:
         """4つのチャートを統合した包括的なPDFレポートを作成"""
@@ -49,9 +56,9 @@ class PdfReportService:
                 # A4サイズ(8.27 x 11.69 inch)のページを作成
                 fig = plt.figure(figsize=(8.27, 11.69))
 
-                # 全体のタイトルを追加（英語のみでエンコード問題を回避）
+                # 全体のタイトルを追加
                 fig.suptitle(
-                    f"{stock_metrics.code} - Comprehensive Analysis Report\n"
+                    f"{stock_metrics.code} {stock_metrics.company_name}\n"
                     f"Analysis Date: {stock_metrics.analysis_date}",
                     fontsize=14,
                     fontweight="bold",
