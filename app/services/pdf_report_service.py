@@ -43,8 +43,62 @@ class PdfReportService:
         # PDF出力時にTrueTypeフォントを使用（日本語文字の埋め込み用）
         plt.rcParams["pdf.fonttype"] = 42
 
+    def _create_report_page(self, pdf: PdfPages, stock_metrics: StockMetrics) -> None:
+        """1銘柄分のレポートページを作成してPDFに追加
+
+        Args:
+            pdf: PdfPagesオブジェクト
+            stock_metrics: 銘柄の分析データ
+        """
+        # A4サイズ(8.27 x 11.69 inch)のページを作成
+        fig = plt.figure(figsize=(8.27, 11.69))
+
+        # 全体のタイトルを追加
+        fig.suptitle(
+            f"{stock_metrics.code} {stock_metrics.company_name}\n"
+            f"Analysis Date: {stock_metrics.analysis_date}",
+            fontsize=14,
+            fontweight="bold",
+            y=0.97,
+        )
+
+        # データの準備
+        df = stock_metrics.df_result.copy()
+
+        # 1行目: 株価と出来高の統合チャート
+        ax1 = plt.subplot2grid((4, 2), (0, 0), colspan=2)
+        self.chart_creator.create_price_chart_with_volume(ax1, df)
+
+        # 2行目: 左にPER/ROE/ROA、右にPBR/PSR
+        ax2 = plt.subplot2grid((4, 2), (1, 0))
+        self.chart_creator.create_per_roe_roa_chart(ax2, df)
+
+        ax3 = plt.subplot2grid((4, 2), (1, 1))
+        self.chart_creator.create_pbr_psr_peg_chart(ax3, df)
+
+        # 3行目: 左に売上チャート、右に営業利益チャート
+        ax4 = plt.subplot2grid((4, 2), (2, 0))
+        self.chart_creator.create_sales_chart(ax4, stock_metrics)
+
+        ax5 = plt.subplot2grid((4, 2), (2, 1))
+        self.chart_creator.create_operation_profit_chart(ax5, stock_metrics)
+
+        # 4行目: 左に当期利益チャート、右にマージンチャート
+        ax6 = plt.subplot2grid((4, 2), (3, 0))
+        self.chart_creator.create_profit_chart(ax6, stock_metrics)
+
+        ax7 = plt.subplot2grid((4, 2), (3, 1))
+        self.chart_creator.create_margin_chart(ax7, stock_metrics)
+
+        # レイアウトを調整
+        plt.tight_layout(rect=(0, 0, 1, 0.95))
+
+        # PDFに保存
+        pdf.savefig(fig, bbox_inches="tight", dpi=150)
+        plt.close(fig)
+
     def create_comprehensive_report(self, stock_metrics: StockMetrics) -> Path:
-        """4つのチャートを統合した包括的なPDFレポートを作成"""
+        """単一銘柄のPDFレポートを作成"""
         # ファイル名を設定
         date_short = self.file_manager.get_date_string_short(stock_metrics.analysis_date)
         filename = f"{stock_metrics.code}_{date_short}_comprehensive_report.pdf"
@@ -53,52 +107,7 @@ class PdfReportService:
             # PDFをメモリ上に作成
             pdf_buffer = io.BytesIO()
             with PdfPages(pdf_buffer) as pdf:
-                # A4サイズ(8.27 x 11.69 inch)のページを作成
-                fig = plt.figure(figsize=(8.27, 11.69))
-
-                # 全体のタイトルを追加
-                fig.suptitle(
-                    f"{stock_metrics.code} {stock_metrics.company_name}\n"
-                    f"Analysis Date: {stock_metrics.analysis_date}",
-                    fontsize=14,
-                    fontweight="bold",
-                    y=0.97,
-                )
-
-                # データの準備
-                df = stock_metrics.df_result.copy()
-
-                # 1行目: 株価と出来高の統合チャート
-                ax1 = plt.subplot2grid((4, 2), (0, 0), colspan=2)
-                self.chart_creator.create_price_chart_with_volume(ax1, df)
-
-                # 2行目: 左にPER/ROE/ROA、右にPBR/PSR
-                ax2 = plt.subplot2grid((4, 2), (1, 0))
-                self.chart_creator.create_per_roe_roa_chart(ax2, df)
-
-                ax3 = plt.subplot2grid((4, 2), (1, 1))
-                self.chart_creator.create_pbr_psr_peg_chart(ax3, df)
-
-                # 3行目: 左に売上チャート、右に営業利益チャート
-                ax4 = plt.subplot2grid((4, 2), (2, 0))
-                self.chart_creator.create_sales_chart(ax4, stock_metrics)
-
-                ax5 = plt.subplot2grid((4, 2), (2, 1))
-                self.chart_creator.create_operation_profit_chart(ax5, stock_metrics)
-
-                # 4行目: 左に当期利益チャート、右にマージンチャート
-                ax6 = plt.subplot2grid((4, 2), (3, 0))
-                self.chart_creator.create_profit_chart(ax6, stock_metrics)
-
-                ax7 = plt.subplot2grid((4, 2), (3, 1))
-                self.chart_creator.create_margin_chart(ax7, stock_metrics)
-
-                # レイアウトを調整
-                plt.tight_layout(rect=(0, 0, 1, 0.95))
-
-                # PDFに保存
-                pdf.savefig(fig, bbox_inches="tight", dpi=150)
-                plt.close(fig)
+                self._create_report_page(pdf, stock_metrics)
 
             # save_report()を使ってファイルを保存
             pdf_path = self.file_manager.save_report(
@@ -115,4 +124,57 @@ class PdfReportService:
             raise
 
         logger.info("包括的なPDFレポートを作成しました: %s", pdf_path)
+        return pdf_path
+
+    def create_multi_company_report(
+        self,
+        stock_metrics_list: list[StockMetrics],
+        output_filename: str | None = None,
+    ) -> Path:
+        """複数銘柄のレポートを1つのPDFにまとめて出力
+
+        Args:
+            stock_metrics_list: 銘柄の分析データのリスト
+            output_filename: 出力ファイル名（省略時は日付ベースで自動生成）
+
+        Returns:
+            生成されたPDFファイルのパス
+
+        Raises:
+            ValueError: stock_metrics_listが空の場合
+        """
+        if not stock_metrics_list:
+            raise ValueError("銘柄リストが空です")
+
+        # 最初の銘柄の分析日を基準にファイル名を生成
+        analysis_date = stock_metrics_list[0].analysis_date
+        date_short = self.file_manager.get_date_string_short(analysis_date)
+        filename = output_filename or f"{date_short}_multi_report.pdf"
+
+        try:
+            # PDFをメモリ上に作成
+            pdf_buffer = io.BytesIO()
+            with PdfPages(pdf_buffer) as pdf:
+                for stock_metrics in stock_metrics_list:
+                    self._create_report_page(pdf, stock_metrics)
+
+            # save_report()を使ってファイルを保存
+            pdf_path = self.file_manager.save_report(
+                content=pdf_buffer.getvalue(),
+                filename=filename,
+                date=analysis_date,
+            )
+
+        except UnicodeEncodeError as e:
+            logger.error("PDFエンコードエラー: %s", e)
+            raise
+        except Exception as e:
+            logger.error("PDF生成エラー: %s", e)
+            raise
+
+        logger.info(
+            "複数銘柄PDFレポートを作成しました（%d銘柄）: %s",
+            len(stock_metrics_list),
+            pdf_path,
+        )
         return pdf_path
