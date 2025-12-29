@@ -4,6 +4,7 @@ PDFレポート生成サービス
 複数のチャートを統合してPDFレポートを生成します。
 """
 
+import datetime
 import io
 import logging
 from pathlib import Path
@@ -93,8 +94,8 @@ class PdfReportService:
         # レイアウトを調整
         plt.tight_layout(rect=(0, 0, 1, 0.95))
 
-        # PDFに保存
-        pdf.savefig(fig, bbox_inches="tight", dpi=150)
+        # A4サイズで保存
+        pdf.savefig(fig, dpi=150)
         plt.close(fig)
 
     def create_comprehensive_report(self, stock_metrics: StockMetrics) -> Path:
@@ -126,6 +127,56 @@ class PdfReportService:
         logger.info("包括的なPDFレポートを作成しました: %s", pdf_path)
         return pdf_path
 
+    def _create_index_page(
+        self, pdf: PdfPages, stock_metrics_list: list[StockMetrics], analysis_date: datetime.date
+    ) -> None:
+        """企業リスト（目次）ページを作成
+
+        Args:
+            pdf: PdfPagesオブジェクト
+            stock_metrics_list: 銘柄の分析データのリスト
+            analysis_date: 分析日
+        """
+        fig = plt.figure(figsize=(8.27, 11.69))
+
+        # タイトル
+        fig.suptitle(
+            f"複数銘柄分析レポート\nAnalysis Date: {analysis_date}",
+            fontsize=16,
+            fontweight="bold",
+            y=0.95,
+        )
+
+        # テーブルで企業リストを表示（上寄りに配置）
+        ax = fig.add_axes([0.1, 0.3, 0.8, 0.6])  # [left, bottom, width, height]
+        ax.axis("off")
+
+        # テーブルデータ作成
+        table_data = []
+        for i, metrics in enumerate(stock_metrics_list, 1):
+            table_data.append([str(i), metrics.code, metrics.company_name])
+
+        # テーブル作成（上寄せ）
+        table = ax.table(
+            cellText=table_data,
+            colLabels=["No.", "証券コード", "企業名"],
+            loc="upper center",
+            cellLoc="left",
+            colWidths=[0.1, 0.2, 0.5],
+        )
+        table.auto_set_font_size(False)
+        table.set_fontsize(11)
+        table.scale(1.2, 1.8)
+
+        # ヘッダー行のスタイル
+        for j in range(3):
+            table[(0, j)].set_facecolor("#4472C4")
+            table[(0, j)].set_text_props(color="white", fontweight="bold")
+
+        # A4サイズで保存
+        pdf.savefig(fig, dpi=150)
+        plt.close(fig)
+
     def create_multi_company_report(
         self,
         stock_metrics_list: list[StockMetrics],
@@ -155,6 +206,10 @@ class PdfReportService:
             # PDFをメモリ上に作成
             pdf_buffer = io.BytesIO()
             with PdfPages(pdf_buffer) as pdf:
+                # 最初に企業リストページを作成
+                self._create_index_page(pdf, stock_metrics_list, analysis_date)
+
+                # 各銘柄のレポートページを作成
                 for stock_metrics in stock_metrics_list:
                     self._create_report_page(pdf, stock_metrics)
 
