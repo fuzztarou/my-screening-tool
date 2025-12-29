@@ -67,9 +67,10 @@ def load_target_codes(file_path: Path = TARGET_CODES_FILE) -> list[str]:
     codes: list[str] = []
     with file_path.open(encoding="utf-8") as f:
         for line in f:
-            line = line.strip()
-            # 空行とコメント行をスキップ
-            if line and not line.startswith("#"):
+            # 行内コメントを除去（# 以降を削除）
+            line = line.split("#")[0].strip()
+            # 空行をスキップ
+            if line:
                 codes.append(line)
 
     return codes
