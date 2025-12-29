@@ -17,3 +17,6 @@ data/
 
 ## AI planning
 PLAN*.md
+
+# Target codes config (user-specific)
+config/target_codes.txt
