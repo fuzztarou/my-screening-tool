@@ -12,6 +12,9 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from pypdf import PdfReader, PdfWriter
+from pypdf.annotations import Link
+from pypdf.generic import Fit
 
 from app.services.analyze_quotes import StockMetrics
 from app.services.chart_creator import ChartCreator
@@ -128,14 +131,20 @@ class PdfReportService:
         return pdf_path
 
     def _create_index_page(
-        self, pdf: PdfPages, stock_metrics_list: list[StockMetrics], analysis_date: datetime.date
-    ) -> None:
-        """企業リスト（目次）ページを作成
+        self,
+        pdf: PdfPages,
+        stock_metrics_list: list[StockMetrics],
+        analysis_date: datetime.date,
+    ) -> list[tuple[float, float, float, float]]:
+        """企業リスト(目次)ページを作成
 
         Args:
             pdf: PdfPagesオブジェクト
             stock_metrics_list: 銘柄の分析データのリスト
             analysis_date: 分析日
+
+        Returns:
+            各企業名セルの位置リスト [(x1, y1, x2, y2), ...] (PDFポイント座標)
         """
         fig = plt.figure(figsize=(8.27, 11.69))
 
@@ -147,8 +156,8 @@ class PdfReportService:
             y=0.95,
         )
 
-        # テーブルで企業リストを表示（上寄りに配置）
-        ax = fig.add_axes([0.1, 0.3, 0.8, 0.6])  # [left, bottom, width, height]
+        # テーブルで企業リストを表示 (上寄りに配置)
+        ax = fig.add_axes((0.1, 0.3, 0.8, 0.6))  # (left, bottom, width, height)
         ax.axis("off")
 
         # テーブルデータ作成
@@ -156,7 +165,7 @@ class PdfReportService:
         for i, metrics in enumerate(stock_metrics_list, 1):
             table_data.append([str(i), metrics.code, metrics.company_name])
 
-        # テーブル作成（上寄せ）
+        # テーブル作成 (上寄せ)
         table = ax.table(
             cellText=table_data,
             colLabels=["No.", "証券コード", "企業名"],
@@ -173,9 +182,70 @@ class PdfReportService:
             table[(0, j)].set_facecolor("#4472C4")
             table[(0, j)].set_text_props(color="white", fontweight="bold")
 
+        # 描画してセル位置を取得
+        fig.canvas.draw()
+        renderer = fig.canvas.renderer  # type: ignore[attr-defined]
+
+        # A4サイズ (ポイント): 595.276 x 841.89
+        pdf_width = 595.276
+        pdf_height = 841.89
+        fig_width, fig_height = fig.get_size_inches()
+        dpi = fig.dpi
+
+        link_positions: list[tuple[float, float, float, float]] = []
+        for i in range(1, len(stock_metrics_list) + 1):
+            # 企業名セル (列インデックス2) の位置を取得
+            cell = table[(i, 2)]
+            bbox = cell.get_window_extent(renderer)
+
+            # ピクセル座標からPDFポイント座標に変換
+            x1 = bbox.x0 / (fig_width * dpi) * pdf_width
+            y1 = bbox.y0 / (fig_height * dpi) * pdf_height
+            x2 = bbox.x1 / (fig_width * dpi) * pdf_width
+            y2 = bbox.y1 / (fig_height * dpi) * pdf_height
+
+            link_positions.append((x1, y1, x2, y2))
+
         # A4サイズで保存
         pdf.savefig(fig, dpi=150)
         plt.close(fig)
+
+        return link_positions
+
+    def _add_index_links(
+        self,
+        pdf_bytes: bytes,
+        link_positions: list[tuple[float, float, float, float]],
+    ) -> bytes:
+        """企業リストページに各企業レポートへのリンクを追加
+
+        Args:
+            pdf_bytes: 元のPDFデータ
+            link_positions: 各企業名セルの位置リスト [(x1, y1, x2, y2), ...]
+
+        Returns:
+            リンク追加後のPDFデータ
+        """
+        reader = PdfReader(io.BytesIO(pdf_bytes))
+        writer = PdfWriter()
+
+        # 全ページをコピー
+        for page in reader.pages:
+            writer.add_page(page)
+
+        # 企業リストページ (0ページ目) にリンクを追加
+        for i, (x1, y1, x2, y2) in enumerate(link_positions):
+            # リンクアノテーションを作成
+            link = Link(
+                rect=(x1, y1, x2, y2),
+                target_page_index=i + 1,  # 企業リストが0ページ目なので+1
+            )
+            writer.add_annotation(page_number=0, annotation=link)
+
+        # 結果をバイトとして返す
+        output_buffer = io.BytesIO()
+        writer.write(output_buffer)
+        return output_buffer.getvalue()
 
     def create_multi_company_report(
         self,
@@ -206,16 +276,23 @@ class PdfReportService:
             # PDFをメモリ上に作成
             pdf_buffer = io.BytesIO()
             with PdfPages(pdf_buffer) as pdf:
-                # 最初に企業リストページを作成
-                self._create_index_page(pdf, stock_metrics_list, analysis_date)
+                # 最初に企業リストページを作成 (リンク位置も取得)
+                link_positions = self._create_index_page(
+                    pdf, stock_metrics_list, analysis_date
+                )
 
                 # 各銘柄のレポートページを作成
                 for stock_metrics in stock_metrics_list:
                     self._create_report_page(pdf, stock_metrics)
 
+            # 企業リストページにリンクを追加
+            pdf_with_links = self._add_index_links(
+                pdf_buffer.getvalue(), link_positions
+            )
+
             # save_report()を使ってファイルを保存
             pdf_path = self.file_manager.save_report(
-                content=pdf_buffer.getvalue(),
+                content=pdf_with_links,
                 filename=filename,
                 date=analysis_date,
             )
