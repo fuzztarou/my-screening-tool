@@ -73,10 +73,17 @@ class ChartCreator:
         ax.set_ylabel("Price (JPY)", fontsize=9)
         ax2.set_ylabel("Volume (10K)", fontsize=9)
 
-        # 凡例を結合
+        # 凡例を結合（チャートの上に2行で配置）
         lines1, labels1 = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
-        ax.legend(lines1 + lines2, labels1 + labels2, loc="upper left", fontsize=8)
+        ax.legend(
+            lines1 + lines2,
+            labels1 + labels2,
+            loc="lower center",
+            bbox_to_anchor=(0.5, 1.15),
+            ncol=3,
+            fontsize=6,
+        )
 
         ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)

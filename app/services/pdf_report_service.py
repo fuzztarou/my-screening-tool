@@ -8,13 +8,11 @@ import datetime
 import io
 import logging
 from pathlib import Path
-from typing import Optional
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from pypdf import PdfReader, PdfWriter
 from pypdf.annotations import Link
-from pypdf.generic import Fit
 
 from app.services.analyze_quotes import StockMetrics
 from app.services.chart_creator import ChartCreator
@@ -26,7 +24,7 @@ logger = logging.getLogger(__name__)
 class PdfReportService:
     """PDFレポートを生成するサービス"""
 
-    def __init__(self, file_manager: Optional[FileManager] = None):
+    def __init__(self, file_manager: FileManager | None = None):
         self.file_manager = file_manager or FileManager()
         self.chart_creator = ChartCreator()
         self._setup_matplotlib()
@@ -69,8 +67,8 @@ class PdfReportService:
         # データの準備
         df = stock_metrics.df_result.copy()
 
-        # 1行目: 株価と出来高の統合チャート
-        ax1 = plt.subplot2grid((4, 2), (0, 0), colspan=2)
+        # 1行目: 株価と出来高の統合チャート（左側に配置）
+        ax1 = plt.subplot2grid((4, 2), (0, 0))
         self.chart_creator.create_price_chart_with_volume(ax1, df)
 
         # 2行目: 左にPER/ROE/ROA、右にPBR/PSR
@@ -104,7 +102,9 @@ class PdfReportService:
     def create_comprehensive_report(self, stock_metrics: StockMetrics) -> Path:
         """単一銘柄のPDFレポートを作成"""
         # ファイル名を設定
-        date_short = self.file_manager.get_date_string_short(stock_metrics.analysis_date)
+        date_short = self.file_manager.get_date_string_short(
+            stock_metrics.analysis_date
+        )
         filename = f"{stock_metrics.code}_{date_short}_comprehensive_report.pdf"
 
         try:
