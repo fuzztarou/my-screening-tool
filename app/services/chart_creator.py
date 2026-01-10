@@ -181,15 +181,16 @@ class ChartCreator:
         ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
-    def create_operating_cash_flow_chart(
-        self, ax: Axes, stock_metrics: StockMetrics
-    ) -> None:
-        """営業キャッシュフローチャートを作成"""
+    def create_cash_flow_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
+        """キャッシュフローチャートを作成（営業・投資・財務CF、現金同等物）"""
         df = stock_metrics.df_result.copy()
         self.plotter.plot_operating_cash_flow(ax, df)
+        self.plotter.plot_investing_cash_flow(ax, df)
+        self.plotter.plot_financing_cash_flow(ax, df)
+        self.plotter.plot_cash_and_equivalents(ax, df)
 
-        ax.set_title("Operating Cash Flow Trend", fontsize=10, fontweight="bold")
+        ax.set_title("Cash Flow Trend", fontsize=10, fontweight="bold")
         ax.set_ylabel("Cash Flow (100M JPY)", fontsize=9)
-        ax.legend(loc="upper left", fontsize=8)
+        ax.legend(loc="upper left", fontsize=6)
         ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)

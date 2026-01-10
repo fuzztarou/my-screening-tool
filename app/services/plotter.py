@@ -256,7 +256,50 @@ class Plotter:
             df["Date"],
             df["OperatingCashFlow_100M"],
             where="post",
-            label="Operating Cash Flow",
+            label="Operating CF",
             linewidth=1.5,
             color="teal",
+        )
+
+    def plot_investing_cash_flow(self, ax: Axes, df: pd.DataFrame) -> None:
+        """投資キャッシュフローをプロット"""
+        df = df.copy()
+        df["InvestingCashFlow_100M"] = df["CashFlowsFromInvestingActivities"] / 1e8
+
+        ax.step(
+            df["Date"],
+            df["InvestingCashFlow_100M"],
+            where="post",
+            label="Investing CF",
+            linewidth=1.5,
+            color="orange",
+        )
+
+    def plot_financing_cash_flow(self, ax: Axes, df: pd.DataFrame) -> None:
+        """財務キャッシュフローをプロット"""
+        df = df.copy()
+        df["FinancingCashFlow_100M"] = df["CashFlowsFromFinancingActivities"] / 1e8
+
+        ax.step(
+            df["Date"],
+            df["FinancingCashFlow_100M"],
+            where="post",
+            label="Financing CF",
+            linewidth=1.5,
+            color="purple",
+        )
+
+    def plot_cash_and_equivalents(self, ax: Axes, df: pd.DataFrame) -> None:
+        """現金及び現金同等物をプロット"""
+        df = df.copy()
+        df["CashAndEquivalents_100M"] = df["CashAndEquivalents"] / 1e8
+
+        ax.step(
+            df["Date"],
+            df["CashAndEquivalents_100M"],
+            where="post",
+            label="Cash & Equiv.",
+            linewidth=1.5,
+            color="red",
+            linestyle=":",
         )

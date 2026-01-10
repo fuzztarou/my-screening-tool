@@ -31,6 +31,9 @@ FINS_COLUMNS_TO_EXTRACT = [
     "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock",
     "AverageNumberOfShares",
     "CashFlowsFromOperatingActivities",
+    "CashFlowsFromInvestingActivities",
+    "CashFlowsFromFinancingActivities",
+    "CashAndEquivalents",
 ]
 
 # 財務データの数値変換対象カラム
@@ -57,4 +60,7 @@ FINS_COLUMNS_TO_NUMERIC = [
     "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock",  # 発行済株式数
     "AverageNumberOfShares",
     "CashFlowsFromOperatingActivities",
+    "CashFlowsFromInvestingActivities",
+    "CashFlowsFromFinancingActivities",
+    "CashAndEquivalents",
 ]

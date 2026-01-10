@@ -67,12 +67,12 @@ class PdfReportService:
         # データの準備
         df = stock_metrics.df_result.copy()
 
-        # 1行目: 左に株価と出来高、右に営業キャッシュフロー
+        # 1行目: 左に株価と出来高、右にキャッシュフロー
         ax1 = plt.subplot2grid((4, 2), (0, 0))
         self.chart_creator.create_price_chart_with_volume(ax1, df)
 
         ax1b = plt.subplot2grid((4, 2), (0, 1))
-        self.chart_creator.create_operating_cash_flow_chart(ax1b, stock_metrics)
+        self.chart_creator.create_cash_flow_chart(ax1b, stock_metrics)
 
         # 2行目: 左にPER/ROE/ROA、右にPBR/PSR
         ax2 = plt.subplot2grid((4, 2), (1, 0))
