@@ -61,7 +61,7 @@ class PdfReportService:
         # 全体のタイトルを追加
         fig.suptitle(
             f"{stock_metrics.code} {stock_metrics.company_name}\n"
-            f"Analysis Date: {stock_metrics.analysis_date}    "
+            f"Analysis Date: {stock_metrics.analysis_date}\n"
             f"Market Cap: {latest_market_cap:,.0f} (100M JPY)",
             fontsize=14,
             fontweight="bold",
