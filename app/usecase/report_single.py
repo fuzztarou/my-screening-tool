@@ -17,8 +17,11 @@ from ..utils.stock_code import normalize_stock_code
 logger = logging.getLogger(__name__)
 
 
-def report_single_company() -> Path:
+def report_single_company(code: str) -> Path:
     """特定の企業の分析レポートを作成する関数
+
+    Args:
+        code: 証券コード
 
     Returns:
         生成されたPDFファイルのパス
@@ -34,13 +37,10 @@ def report_single_company() -> Path:
     daily_quotes_handler = DailyQuotesDataHandler(client=jq_client)
     listed_info_handler = ListedInfoHandler(client=jq_client)
 
-    # ユーザーからコードの入力
-    input_code = input("企業の証券コードを入力してください: ").strip()
-
     # 入力されたコードを正規化
     try:
-        normalized_code = normalize_stock_code(input_code)
-        logger.info("証券コード %s を %s に正規化しました", input_code, normalized_code)
+        normalized_code = normalize_stock_code(code.strip())
+        logger.info("証券コード %s を %s に正規化しました", code, normalized_code)
     except ValueError as e:
         logger.error("無効な証券コード: %s", e)
         raise
@@ -98,4 +98,5 @@ def report_single_company() -> Path:
 
 
 if __name__ == "__main__":
-    report_single_company()
+    input_code = input("企業の証券コードを入力してください: ")
+    report_single_company(input_code)

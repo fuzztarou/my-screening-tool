@@ -27,7 +27,8 @@ def main() -> None:
     mode = input("モードを選択してください (1/2): ").strip()
 
     if mode == "1":
-        single.report_single_company()
+        code = input("企業の証券コードを入力してください: ")
+        single.report_single_company(code)
     elif mode == "2":
         multiple.report_from_config()
     else:
