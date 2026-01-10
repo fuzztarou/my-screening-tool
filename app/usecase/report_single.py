@@ -29,6 +29,14 @@ def report_single_company(code: str) -> Path:
 
     logger.info("=== 企業分析レポート作成開始 ===")
 
+    # 銘柄コードを正規化
+    try:
+        normalized_code = normalize_stock_code(code.strip())
+        logger.info("証券コード %s を %s に正規化しました", code, normalized_code)
+    except ValueError as e:
+        logger.error("無効な証券コード: %s", e)
+        raise
+
     # J-Quantsクライアントを作成
     jq_client = create_client()
 
@@ -36,14 +44,6 @@ def report_single_company(code: str) -> Path:
     fins_handler = FinsDataHandler(client=jq_client)
     daily_quotes_handler = DailyQuotesDataHandler(client=jq_client)
     listed_info_handler = ListedInfoHandler(client=jq_client)
-
-    # 入力されたコードを正規化
-    try:
-        normalized_code = normalize_stock_code(code.strip())
-        logger.info("証券コード %s を %s に正規化しました", code, normalized_code)
-    except ValueError as e:
-        logger.error("無効な証券コード: %s", e)
-        raise
 
     # 財務データを取得
     try:
