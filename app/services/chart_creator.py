@@ -182,11 +182,9 @@ class ChartCreator:
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
 
     def create_cash_flow_chart(self, ax: Axes, stock_metrics: StockMetrics) -> None:
-        """キャッシュフローチャートを作成（営業・投資・財務CF、現金同等物、時価総額）"""
+        """キャッシュフローチャートを作成（営業CF、現金同等物、時価総額）"""
         df = stock_metrics.df_result.copy()
         self.plotter.plot_operating_cash_flow(ax, df)
-        self.plotter.plot_investing_cash_flow(ax, df)
-        self.plotter.plot_financing_cash_flow(ax, df)
         self.plotter.plot_cash_and_equivalents(ax, df)
         self.plotter.plot_market_cap(ax, df)
 
