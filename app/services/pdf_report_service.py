@@ -55,10 +55,14 @@ class PdfReportService:
         # A4サイズ(8.27 x 11.69 inch)のページを作成
         fig = plt.figure(figsize=(8.27, 11.69))
 
+        # 最新の時価総額を取得（億円単位）
+        latest_market_cap = stock_metrics.df_result["MarketCap"].iloc[-1] / 1e8
+
         # 全体のタイトルを追加
         fig.suptitle(
             f"{stock_metrics.code} {stock_metrics.company_name}\n"
-            f"Analysis Date: {stock_metrics.analysis_date}",
+            f"Analysis Date: {stock_metrics.analysis_date}    "
+            f"Market Cap: {latest_market_cap:,.0f} (100M JPY)",
             fontsize=14,
             fontweight="bold",
             y=0.97,
