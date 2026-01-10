@@ -4,8 +4,8 @@ J-Quants APIを使用した株価データ取得のメインアプリケーシ�
 
 import logging
 
-from app import report_single as single
-from app import report_multiple as multiple
+from app.usecase import report_single as single
+from app.usecase import report_multiple as multiple
 from config.config import config
 
 logger = logging.getLogger(__name__)
