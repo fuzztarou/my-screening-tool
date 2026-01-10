@@ -14,7 +14,7 @@ from app.repository.quotes import DailyQuotesDataHandler
 from app.repository.fins import FinsDataHandler
 from app.repository.listed_info import ListedInfoHandler
 from app.services.pdf_report_service import PdfReportService
-from app.utils.stock_code import normalize_stock_code
+from app.utils.stock_code import normalize_stock_codes
 
 logger = logging.getLogger(__name__)
 
@@ -38,17 +38,8 @@ def report_from_config() -> Path:
     logger.info("対象銘柄数: %d", len(codes))
 
     # 銘柄コードを正規化
-    normalized_codes: list[str] = []
-    for code in codes:
-        try:
-            normalized = normalize_stock_code(code.strip())
-            normalized_codes.append(normalized)
-            logger.info("証券コード %s を %s に正規化しました", code, normalized)
-        except ValueError as e:
-            logger.warning("無効な証券コードをスキップ: %s - %s", code, e)
-
-    if not normalized_codes:
-        raise ValueError("有効な銘柄コードがありません")
+    normalized_codes = normalize_stock_codes(codes)
+    logger.info("銘柄コードを正規化しました: %s", normalized_codes)
 
     # J-Quantsクライアントを作成
     jq_client = create_client()
