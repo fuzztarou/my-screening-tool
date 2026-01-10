@@ -303,3 +303,16 @@ class Plotter:
             color="red",
             linestyle=":",
         )
+
+    def plot_market_cap(self, ax: Axes, df: pd.DataFrame) -> None:
+        """時価総額をプロット"""
+        df = df.copy()
+        df["MarketCap_100M"] = df["MarketCap"] / 1e8
+
+        ax.plot(
+            df["Date"],
+            df["MarketCap_100M"],
+            label="Market Cap",
+            linewidth=1.5,
+            color="navy",
+        )
