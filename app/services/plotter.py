@@ -246,3 +246,17 @@ class Plotter:
             color="red",
             alpha=0.7,
         )
+
+    def plot_operating_cash_flow(self, ax: Axes, df: pd.DataFrame) -> None:
+        """営業キャッシュフローをプロット"""
+        df = df.copy()
+        df["OperatingCashFlow_100M"] = df["CashFlowsFromOperatingActivities"] / 1e8
+
+        ax.step(
+            df["Date"],
+            df["OperatingCashFlow_100M"],
+            where="post",
+            label="Operating Cash Flow",
+            linewidth=1.5,
+            color="teal",
+        )
