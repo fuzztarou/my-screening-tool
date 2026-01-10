@@ -4,6 +4,7 @@
 
 import datetime
 import logging
+from pathlib import Path
 
 from ..client.jq import create_client
 from ..services.analyze_quotes import StockDataProcessor
@@ -16,8 +17,12 @@ from ..utils.stock_code import normalize_stock_code
 logger = logging.getLogger(__name__)
 
 
-def report_single_company() -> None:
-    """特定の企業の分析レポートを作成する関数"""
+def report_single_company() -> Path:
+    """特定の企業の分析レポートを作成する関数
+
+    Returns:
+        生成されたPDFファイルのパス
+    """
 
     logger.info("=== 企業分析レポート作成開始 ===")
 
@@ -84,6 +89,8 @@ def report_single_company() -> None:
             "証券コード: %s  企業名: %s", normalized_code, stock_metrics[0].company_name
         )
         logger.info("作成されたファイル: %s", pdf_report_path)
+
+        return pdf_report_path
 
     except Exception as e:
         logger.exception("データ分析またはチャート作成に失敗しました: %s", e)
