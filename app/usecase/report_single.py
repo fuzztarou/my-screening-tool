@@ -38,7 +38,7 @@ def report_single_company() -> None:
         logger.info("証券コード %s を %s に正規化しました", input_code, normalized_code)
     except ValueError as e:
         logger.error("無効な証券コード: %s", e)
-        return
+        raise
 
     # 財務データを取得
     try:
@@ -47,14 +47,14 @@ def report_single_company() -> None:
         logger.exception(
             "証券コード %s のデータ取得に失敗しました: %s", normalized_code, e
         )
-        return
+        raise
 
     # 上場企業情報を取得
     try:
         listed_info_handler.prepare_listed_info_data()
     except Exception as e:
         logger.exception("上場企業情報の取得に失敗しました: %s", e)
-        return
+        raise
 
     # 株価データを取得
     try:
@@ -65,7 +65,7 @@ def report_single_company() -> None:
         logger.exception(
             "証券コード %s の株価データ取得に失敗しました: %s", normalized_code, e
         )
-        return
+        raise
 
     # データ分析とレポート作成
     try:
@@ -87,7 +87,7 @@ def report_single_company() -> None:
 
     except Exception as e:
         logger.exception("データ分析またはチャート作成に失敗しました: %s", e)
-        return
+        raise
 
 
 if __name__ == "__main__":
