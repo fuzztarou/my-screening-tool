@@ -112,6 +112,7 @@ class ChartCreator:
             "Financial Indicators (PBR, PSR, PEG)", fontsize=10, fontweight="bold"
         )
         ax.set_ylabel("Ratio", fontsize=9)
+        ax.set_ylim(top=5)
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
