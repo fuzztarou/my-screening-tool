@@ -92,6 +92,12 @@ uv run python main.py
 
 複数銘柄のレポートが1つのPDFにまとめて出力される。
 
+## 出力例
+
+<p align="center">
+  <img src="docs/images/report_example.png" width="500">
+</p>
+
 ## 環境変数
 
 `.env` ファイルで以下の設定が可能:
