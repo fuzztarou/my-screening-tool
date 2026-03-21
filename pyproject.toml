@@ -37,7 +37,35 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "C90", "I", "N", "UP", "YTT", "S", "BLE", "FBT", "B", "A", "COM", "C4", "DTZ", "T10", "EM", "EXE", "FA", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SLOT", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "AIR", "PERF", "FURB", "LOG", "RUF"]
-ignore = ["COM812", "ISC001", "N802", "PD901", "RET504"]
+ignore = [
+    "COM812",   # trailing comma (formatter conflict)
+    "ISC001",   # implicit string concatenation (formatter conflict)
+    "N802",     # function name lowercase
+    "PD901",    # generic variable name `df`
+    "RET504",   # unnecessary assignment before return
+    "RUF001",   # ambiguous unicode (Japanese fullwidth chars in strings)
+    "RUF002",   # ambiguous unicode (Japanese fullwidth chars in docstrings)
+    "RUF003",   # ambiguous unicode (Japanese fullwidth chars in comments)
+    "PLR2004",  # magic value in comparison (financial thresholds)
+    "ERA001",   # commented-out code (Japanese comments misdetected)
+    "TRY003",   # long exception messages (Japanese messages)
+    "EM102",    # f-string in exception (Japanese messages)
+    "T201",     # print found (CLI tool)
+    "FBT001",   # boolean positional arg in function definition
+    "FBT002",   # boolean default positional arg
+    "BLE001",   # blind exception catch (intentional fallback)
+    "S101",     # assert detected (used for type narrowing)
+    "G004",     # f-string in logging
+    "TRY401",   # redundant exception in logging.exception
+    "DTZ011",   # datetime.date.today without tz
+    "PD002",    # inplace=True
+    "TRY300",   # return in try block
+    "TRY400",   # logging.error in except (intentional)
+    "EM101",    # string literal in exception (Japanese messages)
+    "FBT003",   # boolean positional value in function call
+    "PLW2901",  # loop variable overwritten
+    "TID252",   # relative imports from parent (existing pattern)
+]
 
 [tool.pylint]
 disable = ["invalid-name", "broad-exception-caught"]
@@ -50,5 +78,6 @@ indent-style = "space"
 dev = [
     "mypy>=1.16.1",
     "pandas-stubs>=2.2.3.250527",
+    "pre-commit>=4.5.1",
     "ruff>=0.12.0",
 ]

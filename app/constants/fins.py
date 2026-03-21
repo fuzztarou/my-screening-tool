@@ -57,7 +57,8 @@ FINS_COLUMNS_TO_NUMERIC = [
     "Equity",
     "EquityToAssetRatio",
     "BookValuePerShare",
-    "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock",  # 発行済株式数
+    # 発行済株式数
+    "NumberOfIssuedAndOutstandingSharesAtTheEndOfFiscalYearIncludingTreasuryStock",
     "AverageNumberOfShares",
     "CashFlowsFromOperatingActivities",
     "CashFlowsFromInvestingActivities",

@@ -50,7 +50,7 @@ class FinsDataHandler:
         existing_count = 0
         new_count = 0
 
-        for i, normalized_code in enumerate(normalized_codes):
+        for _i, normalized_code in enumerate(normalized_codes):
             try:
                 is_new = self._ensure_financial_csv(normalized_code)
 

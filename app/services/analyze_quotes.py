@@ -150,7 +150,8 @@ class IndicatorCalculator:
             df["OperatingProfitGrowthRate"] = df["OperatingProfitGrowthRate"].ffill()
         else:
             logger.warning(
-                "No FY data found (Consolidated or NonConsolidated), setting OperatingProfitGrowthRate to NaN"
+                "No FY data found (Consolidated or NonConsolidated),"
+                " setting OperatingProfitGrowthRate to NaN"
             )
             df["OperatingProfitGrowthRate"] = np.nan
 
@@ -167,7 +168,8 @@ class IndicatorCalculator:
         return df
 
     def _set_operating_margin(self, df: pd.DataFrame) -> pd.DataFrame:
-        """営業利益率を計算（実績と予想、パーセント表示）- DisclosedDate変更時のみ値を保持"""
+        """営業利益率を計算（実績と予想、パーセント表示）
+        - DisclosedDate変更時のみ値を保持"""
         # 営業利益率を計算
         df["OperatingMargin"] = (df["OperatingProfit"] / df["NetSales"]) * 100
         df["ForecastOperatingMargin"] = (
@@ -177,7 +179,8 @@ class IndicatorCalculator:
         return df
 
     def _set_net_margin(self, df: pd.DataFrame) -> pd.DataFrame:
-        """純利益率を計算（実績と予想、パーセント表示）- DisclosedDate変更時のみ値を保持"""
+        """純利益率を計算（実績と予想、パーセント表示）
+        - DisclosedDate変更時のみ値を保持"""
         # 純利益率を計算
         df["NetMargin"] = (df["Profit"] / df["NetSales"]) * 100
         df["ForecastNetMargin"] = (df["ForecastProfit"] / df["ForecastNetSales"]) * 100
