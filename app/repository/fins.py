@@ -109,7 +109,9 @@ class FinsDataHandler:
 
     def _fetch_financial_data(self, normalized_code: str) -> pd.DataFrame:
         """APIから財務データを取得"""
-        df = self.client.get_fins_statements(code=normalized_code, date_yyyymmdd="")
+        df: pd.DataFrame = self.client.get_fins_statements(
+            code=normalized_code, date_yyyymmdd=""
+        )
 
         # 日付でソート（重要！）
         df = df.sort_values("DisclosedDate").reset_index(drop=True)
@@ -122,8 +124,8 @@ class FinsDataHandler:
 
         # 欠損値の処理
         # 日付が古いものがあればそれで埋める なければ日付が新しいもので埋める
-        df.ffill(inplace=True)
-        df.bfill(inplace=True)
+        df = df.ffill()
+        df = df.bfill()
 
         return df
 
