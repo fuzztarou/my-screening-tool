@@ -56,7 +56,8 @@ class RawQuotesData:
         必要なカラムが全て存在するかを確認
 
         Args:
-            required_columns: 確認するカラムのリスト。Noneの場合はQUOTES_COLUMNS_TO_EXTRACTを使用
+            required_columns: 確認するカラムのリスト。
+                Noneの場合はQUOTES_COLUMNS_TO_EXTRACTを使用
 
         Returns:
             全てのカラムが存在する場合はTrue

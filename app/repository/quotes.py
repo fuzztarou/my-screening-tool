@@ -61,7 +61,7 @@ class DailyQuotesDataHandler:
         existing_count = 0
         new_count = 0
 
-        for i, normalized_code in enumerate(normalized_codes):
+        for _i, normalized_code in enumerate(normalized_codes):
             try:
                 # 単一証券コードのCSVファイル存在を確保
                 is_new_data = self._ensure_stock_quotes_csv(normalized_code)
