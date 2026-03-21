@@ -8,13 +8,12 @@
 import datetime
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 import pandas as pd
 
-from app.utils.files import DATA_TYPE_QUOTES, FileManager
 from app.types import RawFinancialData, RawQuotesData
+from app.utils.files import DATA_TYPE_QUOTES, FileManager
 
 logger = logging.getLogger(__name__)
 
@@ -281,14 +280,14 @@ class IndicatorCalculator:
 class StockDataProcessor:
     """株価データ処理メインクラス"""
 
-    def __init__(self, file_manager: Optional[FileManager] = None):
+    def __init__(self, file_manager: FileManager | None = None):
         self.file_manager = file_manager or FileManager()
         self.calculator = IndicatorCalculator()
 
         # データを保持するインスタンス変数
-        self.df_fins: Optional[RawFinancialData] = None
+        self.df_fins: RawFinancialData | None = None
         self.code_name_dict: dict[str, str] = {}
-        self.target_date: Optional[datetime.date] = None
+        self.target_date: datetime.date | None = None
         self.analysis_cache: dict[str, StockMetrics] = {}
 
     def process_quotes(
@@ -320,7 +319,7 @@ class StockDataProcessor:
 
     def _analyze_single_stock(
         self, code: str, index: int, total: int
-    ) -> Optional[StockMetrics]:
+    ) -> StockMetrics | None:
         """
         単一銘柄の分析を実行
 
@@ -441,4 +440,4 @@ class StockDataProcessor:
         listed_path = self.file_manager.get_listed_info_path(date)
 
         df_listed = pd.read_csv(listed_path)
-        return dict(zip(df_listed["Code"], df_listed["CompanyName"]))
+        return dict(zip(df_listed["Code"], df_listed["CompanyName"], strict=False))

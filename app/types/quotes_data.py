@@ -5,7 +5,6 @@
 """
 
 import logging
-from typing import List, Optional
 
 import pandas as pd
 
@@ -52,7 +51,7 @@ class RawQuotesData:
         instance.validate_columns()
         return instance.convert_numeric_columns()
 
-    def validate_columns(self, required_columns: Optional[List[str]] = None) -> bool:
+    def validate_columns(self, required_columns: list[str] | None = None) -> bool:
         """
         必要なカラムが全て存在するかを確認
 
@@ -81,7 +80,7 @@ class RawQuotesData:
         return True
 
     def convert_numeric_columns(
-        self, columns: Optional[List[str]] = None
+        self, columns: list[str] | None = None
     ) -> "RawQuotesData":
         """
         指定されたカラムを数値型に変換

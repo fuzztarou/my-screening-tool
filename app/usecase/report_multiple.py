@@ -6,15 +6,14 @@ import datetime
 import logging
 from pathlib import Path
 
-from config.config import load_target_codes
-
 from app.client.jq import create_client
-from app.services.analyze_quotes import StockDataProcessor
-from app.repository.quotes import DailyQuotesDataHandler
 from app.repository.fins import FinsDataHandler
 from app.repository.listed_info import ListedInfoHandler
+from app.repository.quotes import DailyQuotesDataHandler
+from app.services.analyze_quotes import StockDataProcessor
 from app.services.pdf_report_service import PdfReportService
 from app.utils.stock_code import normalize_stock_codes
+from config.config import load_target_codes
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +67,9 @@ def report_from_config() -> Path:
     # 株価データを取得
     logger.info("株価データを取得中...")
     try:
-        daily_quotes_handler.prepare_daily_quotes_data(normalized_codes=normalized_codes)
+        daily_quotes_handler.prepare_daily_quotes_data(
+            normalized_codes=normalized_codes
+        )
     except Exception as e:
         logger.exception("株価データの取得に失敗しました: %s", e)
         raise

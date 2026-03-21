@@ -7,7 +7,6 @@ from pathlib import Path
 
 from app.utils import dates
 
-
 # ========================================
 # CONSTANTS
 # ========================================
