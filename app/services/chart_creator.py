@@ -101,6 +101,8 @@ class ChartCreator:
         ax.legend(loc="upper left", fontsize=8)
         ax.grid(visible=True, alpha=0.3)
         self.setup_x_axis(ax, minticks=2, maxticks=6, fontsize=8)
+        _, y_max = ax.get_ylim()
+        ax.set_ylim(bottom=0, top=min(y_max, 100))
 
     def create_pbr_psr_peg_chart(self, ax: Axes, df: pd.DataFrame) -> None:
         """PBR, PSR, PEG指標チャートを作成"""
