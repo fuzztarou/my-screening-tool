@@ -2,8 +2,6 @@
 証券コード関連のユーティリティ関数
 """
 
-from typing import List
-
 
 def normalize_stock_code(input_code: str) -> str:
     """
@@ -33,14 +31,13 @@ def normalize_stock_code(input_code: str) -> str:
     if len(code) == 4:
         # 4桁の場合: 末尾に0を追加
         return code + "0"
-    elif len(code) == 5:
+    if len(code) == 5:
         # 5桁の場合: そのまま使用
         return code
-    else:
-        raise ValueError(f"無効な証券コード: {code} (長さ: {len(code)}桁)")
+    raise ValueError(f"無効な証券コード: {code} (長さ: {len(code)}桁)")
 
 
-def normalize_stock_codes(input_codes: List[str]) -> List[str]:
+def normalize_stock_codes(input_codes: list[str]) -> list[str]:
     """
     証券コードのリストを5桁に正規化
 
@@ -73,7 +70,7 @@ def normalize_stock_codes(input_codes: List[str]) -> List[str]:
             # エラーメッセージにリスト内の位置情報を追加
             index = input_codes.index(code)
             raise ValueError(
-                f"リスト内のインデックス: {index} 値: {code} でエラー: {str(e)}"
+                f"リスト内のインデックス: {index} 値: {code} でエラー: {e!s}"
             ) from e
 
     return normalized_codes

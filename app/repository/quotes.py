@@ -73,7 +73,7 @@ class DailyQuotesDataHandler:
             except Exception:
                 logger.exception(
                     "証券コード %s の株価データ取得・保存に失敗しました",
-                    normalized_codes[i],
+                    normalized_code,
                 )
 
         # 最終結果をログで出力
@@ -106,7 +106,9 @@ class DailyQuotesDataHandler:
 
     def _csv_exists(self, normalized_code: str) -> bool:
         """指定した証券コードのCSVファイルが存在するかチェック"""
-        csv_path = self.file_manager.get_stock_data_path(normalized_code, DATA_TYPE_QUOTES)
+        csv_path = self.file_manager.get_stock_data_path(
+            normalized_code, DATA_TYPE_QUOTES
+        )
         return bool(csv_path.exists())
 
     def _fetch_daily_quotes(self, normalized_code: str) -> pd.DataFrame:
@@ -118,7 +120,9 @@ class DailyQuotesDataHandler:
 
     def _save_to_csv(self, df: pd.DataFrame, normalized_code: str) -> Path:
         """DataFrameをCSVファイルとして保存（5桁のAPIコードを使用）"""
-        file_path = self.file_manager.get_stock_data_path(normalized_code, DATA_TYPE_QUOTES)
+        file_path = self.file_manager.get_stock_data_path(
+            normalized_code, DATA_TYPE_QUOTES
+        )
         self.file_manager.ensure_directory_exists(file_path.parent)
 
         df.to_csv(file_path, index=False)
